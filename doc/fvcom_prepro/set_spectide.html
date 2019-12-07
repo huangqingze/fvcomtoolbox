@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of set_spectide</title>
+  <meta name="keywords" content="set_spectide">
+  <meta name="description" content="Setup spectral tides on the open boundary and dump a spectral file">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">fvcom_prepro</a> &gt; set_spectide.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for fvcom_prepro&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>set_spectide
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Setup spectral tides on the open boundary and dump a spectral file</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function set_spectide(Mobj,nComps,SpectralFile,MyTitle) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Setup spectral tides on the open boundary and dump a spectral file
+
+ function set_spectide(Mobj,nComps,SpectralFile,MyTitle)
+
+ DESCRIPTION:
+    Setup spectral tides on the open boundary and dump a spectral file
+
+ INPUT
+    Mobj         = Matlab mesh object with fields:
+        Components = names of tidal constituents (e.g. M2).
+        nObs       = number of open boundaries
+        nObcNodes  = number of open boundary nodes
+        obc_nodes  = open boundary node IDs
+        period_obc = periods of tides at the open boundary nodes
+        beta_love  = beta Love numbers of tides at the open boundary nodes
+        equilibrium_amp = equilibrium amplitudes of tides at the open
+                   boundary nodes
+        amp_obc    = amplitude at the open boundary nodes
+        phase_obc  = phase at the open boundary nodes
+    nComps       = Number of tidal components
+    SpectralFile = Output file name
+    MyTitle      = Title in resulting NetCDF file.
+
+ OUTPUT:
+
+ EXAMPLE USAGE
+    set_spectide(Mobj,nComps,SpectralFile,MyTitle)
+
+ Author(s):
+    Geoff Cowles (University of Massachusetts Dartmouth)
+    Pierre Cazenave (Plymouth Marine Laboratory)
+
+ Revision history
+    2012-06-15 Added support for variables when calling set_spectide.
+    2012-08-02 Can now write out equilibrium amplitudes and beta love
+    numbers.
+    2016-02-198 Clean up the help a bit.
+
+==============================================================================</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="write_FVCOM_spectide.html" class="code" title="function write_FVCOM_spectide(ObcNodes,Components,Period,Phase,Amp,BetaLove,EquilibriumAmp,SpectralFile,MyTitle)">write_FVCOM_spectide</a>	Write an FVCOM spectral tidal elevation forcing file</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function set_spectide(Mobj,nComps,SpectralFile,MyTitle)</a>
+0002 <span class="comment">% Setup spectral tides on the open boundary and dump a spectral file</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function set_spectide(Mobj,nComps,SpectralFile,MyTitle)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% DESCRIPTION:</span>
+0007 <span class="comment">%    Setup spectral tides on the open boundary and dump a spectral file</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">% INPUT</span>
+0010 <span class="comment">%    Mobj         = Matlab mesh object with fields:</span>
+0011 <span class="comment">%        Components = names of tidal constituents (e.g. M2).</span>
+0012 <span class="comment">%        nObs       = number of open boundaries</span>
+0013 <span class="comment">%        nObcNodes  = number of open boundary nodes</span>
+0014 <span class="comment">%        obc_nodes  = open boundary node IDs</span>
+0015 <span class="comment">%        period_obc = periods of tides at the open boundary nodes</span>
+0016 <span class="comment">%        beta_love  = beta Love numbers of tides at the open boundary nodes</span>
+0017 <span class="comment">%        equilibrium_amp = equilibrium amplitudes of tides at the open</span>
+0018 <span class="comment">%                   boundary nodes</span>
+0019 <span class="comment">%        amp_obc    = amplitude at the open boundary nodes</span>
+0020 <span class="comment">%        phase_obc  = phase at the open boundary nodes</span>
+0021 <span class="comment">%    nComps       = Number of tidal components</span>
+0022 <span class="comment">%    SpectralFile = Output file name</span>
+0023 <span class="comment">%    MyTitle      = Title in resulting NetCDF file.</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">% OUTPUT:</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">% EXAMPLE USAGE</span>
+0028 <span class="comment">%    set_spectide(Mobj,nComps,SpectralFile,MyTitle)</span>
+0029 <span class="comment">%</span>
+0030 <span class="comment">% Author(s):</span>
+0031 <span class="comment">%    Geoff Cowles (University of Massachusetts Dartmouth)</span>
+0032 <span class="comment">%    Pierre Cazenave (Plymouth Marine Laboratory)</span>
+0033 <span class="comment">%</span>
+0034 <span class="comment">% Revision history</span>
+0035 <span class="comment">%    2012-06-15 Added support for variables when calling set_spectide.</span>
+0036 <span class="comment">%    2012-08-02 Can now write out equilibrium amplitudes and beta love</span>
+0037 <span class="comment">%    numbers.</span>
+0038 <span class="comment">%    2016-02-198 Clean up the help a bit.</span>
+0039 <span class="comment">%</span>
+0040 <span class="comment">%==============================================================================</span>
+0041 subname = <span class="string">'set_spectide'</span>;
+0042 <span class="keyword">global</span> ftbverbose;
+0043 <span class="keyword">if</span> ftbverbose
+0044     fprintf(<span class="string">'\nbegin : %s\n'</span>, subname)
+0045 <span class="keyword">end</span>
+0046 
+0047 <span class="comment">%------------------------------------------------------------------------------</span>
+0048 <span class="comment">% Set Component Periods</span>
+0049 <span class="comment">%------------------------------------------------------------------------------</span>
+0050 <span class="comment">% Components = {   'M2',    'N2',    'S2',   'O1',    'K1'};</span>
+0051 <span class="comment">% Period     = [44714.16, 45570.05, 43200, 92949.63, 86164.09];</span>
+0052 
+0053 <span class="comment">%------------------------------------------------------------------------------</span>
+0054 <span class="comment">% Setup user defined phase and amplitude along the open boundaries</span>
+0055 <span class="comment">% need to set:</span>
+0056 <span class="comment">%   1.) Period - vector containing component period in seconds</span>
+0057 <span class="comment">%   2.) Amp    - array of size [Nobcs, Ncomponents] containing amplitude in m</span>
+0058 <span class="comment">%   3.) Phase  - array of size [Nobcs, Ncomponents] containing phase in degrees</span>
+0059 <span class="comment">%------------------------------------------------------------------------------</span>
+0060 <span class="keyword">if</span> nComps &gt; numel(Mobj.Components)
+0061     error(<span class="string">'Too few components given in Mobj. Check and try again.'</span>)
+0062 <span class="keyword">end</span>
+0063 
+0064 <span class="keyword">if</span>(Mobj.nObs==0)
+0065     warning(<span class="string">'cannot setup spectral open boundary, there is no open boundary in the mesh struct'</span>)
+0066     <span class="keyword">return</span>
+0067 <span class="keyword">end</span>
+0068 
+0069 cnt = 0;
+0070 Amp = nan(sum(Mobj.nObcNodes),nComps);
+0071 Phase = nan(sum(Mobj.nObcNodes),nComps);
+0072 ObcNodes = nan(1,sum(Mobj.nObcNodes));
+0073 <span class="keyword">for</span> ob=1:Mobj.nObs
+0074     nObcs = Mobj.nObcNodes(ob);
+0075     <span class="keyword">for</span> j=1:nObcs
+0076         cnt = cnt + 1;
+0077         ObcNodes(cnt) = Mobj.obc_nodes(ob,j);  <span class="comment">% set the open boundary nodes</span>
+0078 
+0079         Amp(cnt,:) = Mobj.amp_obc{ob}(:,j);
+0080         Phase(cnt,:) = Mobj.phase_obc{ob}(:,j);
+0081     <span class="keyword">end</span>
+0082 <span class="keyword">end</span>
+0083 
+0084 <span class="comment">%------------------------------------------------------------------------------</span>
+0085 <span class="comment">% Dump a spectral tide file in NetCDF</span>
+0086 <span class="comment">%------------------------------------------------------------------------------</span>
+0087 <span class="comment">%write_FVCOM_spectide(ObcNodes,Mobj.period_obc(1:nComps),Phase,Amp,Mobj.beta_love,Mobj.equilibrium_amp,SpectralFile,MyTitle)</span>
+0088 <a href="write_FVCOM_spectide.html" class="code" title="function write_FVCOM_spectide(ObcNodes,Components,Period,Phase,Amp,BetaLove,EquilibriumAmp,SpectralFile,MyTitle)">write_FVCOM_spectide</a>(ObcNodes,Mobj.Components,Mobj.period_obc(1:nComps),Phase,Amp,Mobj.beta_love,Mobj.equilibrium_amp,SpectralFile,MyTitle)
+0089 <span class="keyword">if</span>(ftbverbose); fprintf([<span class="string">'end   : '</span> subname <span class="string">'\n'</span>]); <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Wed 20-Feb-2019 16:06:01 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of get_HYCOM_tsobc</title>
+  <meta name="keywords" content="get_HYCOM_tsobc">
+  <meta name="description" content="Read temperature, salinity, u and v data from the HYCOM model output">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">fvcom_prepro</a> &gt; get_HYCOM_tsobc.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for fvcom_prepro&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>get_HYCOM_tsobc
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Read temperature, salinity, u and v data from the HYCOM model output</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function Mobj = get_HYCOM_tsobc(Mobj, hycom, varlist) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Read temperature, salinity, u and v data from the HYCOM model output
+ structure and interpolate onto the open boundaries in Mobj.
+
+ function Mobj = get_HYCOM_tsobc(Mobj, hycom, varlist)
+
+ DESCRIPTION:
+    Interpolate temperature and salinity values onto the FVCOM open
+    boundaries at all sigma levels.
+
+ INPUT:
+   Mobj    = MATLAB mesh structure which must contain:
+               - Mobj.siglayz - sigma layer depths for all model nodes.
+               - Mobj.siglayzc - sigma layer depths for all model elements.
+               - Mobj.lon, Mobj.lat - node coordinates (lat/long).
+               - Mobj.lonc, Mobj.latc - element coordinates (lat/long).
+               - Mobj.read_obc_nodes - cell array of open boundary nodes.
+               - Mobj.read_obc_elems - cell array of open boundary
+               elements (only if using velocities - use find_nested_region
+               to get these indices).
+               - Mobj.h - water depths at nodes.
+               - Mobj.tri - triangulation table for the grid (nv in FVCOM
+               terms).
+               - Mobj.nObcNodes - number of nodes in each open boundary.
+   hycom   = Struct with HYCOM data covering the model domain. Unless
+             varlist is specified (see below), all 4D fields will be
+             interpolated onto the open boundaries (1-3D data will be
+             ignored).
+   varlist = [optional] cell array of variable (field) names to use from
+             hycom.
+
+ OUTPUT:
+    Mobj = MATLAB structure with new fields whose names match those given
+    in hycom. The fields have sizes (sum(Mobj.nObcNodes), sigma, time).
+    The time dimension is determined based on the number of time steps in
+    hycom. The ts_time variable is just the input file times in Modified
+    Julian Day.
+
+ EXAMPLE USAGE
+    hycom = get_HYCOM_forcing(Mobj, [51500, 51531]);
+    Mobj = get_HYCOM_tsobc(Mobj, hycom, {'u', 'v', 'temperature', 'salinity'})
+
+ Author(s):
+    Pierre Cazenave (Plymouth Marine Laboratory)
+
+ Revision history
+    2013-09-03 First version based on get_POLCOMS_tsobc.m.
+    2014-04-28 Update interp1 function to use pchip instead of csap as the
+    latter will be removed in a future version of MATLAB and the
+    innumerable warnings were doing my nut in. I checked the output using
+    the new interp1 call and it's identical to the old version. Also
+    update the parallel toolbox stuff for the same reason (future
+    removal).
+    2015-05-21 Remove the old parallel processing bits and replace with
+    the current versions.
+    2016-03-15 Add fallback interpolation to inverse distance weighted if
+    the triangular interpolation fails (which can happen if the points
+    supplied are all in a line, for example).
+    2017-01-27 Subset the coarse data (HYCOM, CMEMS etc.). This yields a
+    significant performance improvement (both in memory usage and time).
+    2017-02-16 Further performance improvement by only using the coarse
+    data in the vicinity of the open boundary nodes.
+    2017-10-12 Fix bug in indexing the open boundary positions which may
+    have caused the interpolation to fail as the identified positions
+    would be too far from the open boundary nodes.
+
+==========================================================================</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="interp_coarse_to_obc.html" class="code" title="function Mobj = interp_coarse_to_obc(Mobj, coarse, varlist)">interp_coarse_to_obc</a>	Read an arbitrary 4D field (x, y, z, time) from the coarse struct and</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function Mobj = get_HYCOM_tsobc(Mobj, hycom, varlist)</a>
+0002 <span class="comment">% Read temperature, salinity, u and v data from the HYCOM model output</span>
+0003 <span class="comment">% structure and interpolate onto the open boundaries in Mobj.</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">% function Mobj = get_HYCOM_tsobc(Mobj, hycom, varlist)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% DESCRIPTION:</span>
+0008 <span class="comment">%    Interpolate temperature and salinity values onto the FVCOM open</span>
+0009 <span class="comment">%    boundaries at all sigma levels.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% INPUT:</span>
+0012 <span class="comment">%   Mobj    = MATLAB mesh structure which must contain:</span>
+0013 <span class="comment">%               - Mobj.siglayz - sigma layer depths for all model nodes.</span>
+0014 <span class="comment">%               - Mobj.siglayzc - sigma layer depths for all model elements.</span>
+0015 <span class="comment">%               - Mobj.lon, Mobj.lat - node coordinates (lat/long).</span>
+0016 <span class="comment">%               - Mobj.lonc, Mobj.latc - element coordinates (lat/long).</span>
+0017 <span class="comment">%               - Mobj.read_obc_nodes - cell array of open boundary nodes.</span>
+0018 <span class="comment">%               - Mobj.read_obc_elems - cell array of open boundary</span>
+0019 <span class="comment">%               elements (only if using velocities - use find_nested_region</span>
+0020 <span class="comment">%               to get these indices).</span>
+0021 <span class="comment">%               - Mobj.h - water depths at nodes.</span>
+0022 <span class="comment">%               - Mobj.tri - triangulation table for the grid (nv in FVCOM</span>
+0023 <span class="comment">%               terms).</span>
+0024 <span class="comment">%               - Mobj.nObcNodes - number of nodes in each open boundary.</span>
+0025 <span class="comment">%   hycom   = Struct with HYCOM data covering the model domain. Unless</span>
+0026 <span class="comment">%             varlist is specified (see below), all 4D fields will be</span>
+0027 <span class="comment">%             interpolated onto the open boundaries (1-3D data will be</span>
+0028 <span class="comment">%             ignored).</span>
+0029 <span class="comment">%   varlist = [optional] cell array of variable (field) names to use from</span>
+0030 <span class="comment">%             hycom.</span>
+0031 <span class="comment">%</span>
+0032 <span class="comment">% OUTPUT:</span>
+0033 <span class="comment">%    Mobj = MATLAB structure with new fields whose names match those given</span>
+0034 <span class="comment">%    in hycom. The fields have sizes (sum(Mobj.nObcNodes), sigma, time).</span>
+0035 <span class="comment">%    The time dimension is determined based on the number of time steps in</span>
+0036 <span class="comment">%    hycom. The ts_time variable is just the input file times in Modified</span>
+0037 <span class="comment">%    Julian Day.</span>
+0038 <span class="comment">%</span>
+0039 <span class="comment">% EXAMPLE USAGE</span>
+0040 <span class="comment">%    hycom = get_HYCOM_forcing(Mobj, [51500, 51531]);</span>
+0041 <span class="comment">%    Mobj = get_HYCOM_tsobc(Mobj, hycom, {'u', 'v', 'temperature', 'salinity'})</span>
+0042 <span class="comment">%</span>
+0043 <span class="comment">% Author(s):</span>
+0044 <span class="comment">%    Pierre Cazenave (Plymouth Marine Laboratory)</span>
+0045 <span class="comment">%</span>
+0046 <span class="comment">% Revision history</span>
+0047 <span class="comment">%    2013-09-03 First version based on get_POLCOMS_tsobc.m.</span>
+0048 <span class="comment">%    2014-04-28 Update interp1 function to use pchip instead of csap as the</span>
+0049 <span class="comment">%    latter will be removed in a future version of MATLAB and the</span>
+0050 <span class="comment">%    innumerable warnings were doing my nut in. I checked the output using</span>
+0051 <span class="comment">%    the new interp1 call and it's identical to the old version. Also</span>
+0052 <span class="comment">%    update the parallel toolbox stuff for the same reason (future</span>
+0053 <span class="comment">%    removal).</span>
+0054 <span class="comment">%    2015-05-21 Remove the old parallel processing bits and replace with</span>
+0055 <span class="comment">%    the current versions.</span>
+0056 <span class="comment">%    2016-03-15 Add fallback interpolation to inverse distance weighted if</span>
+0057 <span class="comment">%    the triangular interpolation fails (which can happen if the points</span>
+0058 <span class="comment">%    supplied are all in a line, for example).</span>
+0059 <span class="comment">%    2017-01-27 Subset the coarse data (HYCOM, CMEMS etc.). This yields a</span>
+0060 <span class="comment">%    significant performance improvement (both in memory usage and time).</span>
+0061 <span class="comment">%    2017-02-16 Further performance improvement by only using the coarse</span>
+0062 <span class="comment">%    data in the vicinity of the open boundary nodes.</span>
+0063 <span class="comment">%    2017-10-12 Fix bug in indexing the open boundary positions which may</span>
+0064 <span class="comment">%    have caused the interpolation to fail as the identified positions</span>
+0065 <span class="comment">%    would be too far from the open boundary nodes.</span>
+0066 <span class="comment">%</span>
+0067 <span class="comment">%==========================================================================</span>
+0068 
+0069 <span class="comment">% This is just a wrapper around the more generic interp_coarse_to_obc</span>
+0070 <span class="comment">% function. This is to maintain backwards compatibility.</span>
+0071 Mobj = <a href="interp_coarse_to_obc.html" class="code" title="function Mobj = interp_coarse_to_obc(Mobj, coarse, varlist)">interp_coarse_to_obc</a>(Mobj, hycom, varlist);</pre></div>
+<hr><address>Generated on Wed 20-Feb-2019 16:06:01 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

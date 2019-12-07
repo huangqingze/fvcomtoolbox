@@ -1,0 +1,375 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of write_FVCOM_tsobcERSEM</title>
+  <meta name="keywords" content="write_FVCOM_tsobcERSEM">
+  <meta name="description" content="Export temperature and salinity forcing at the open boundary.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">fvcom_prepro</a> &gt; write_FVCOM_tsobcERSEM.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for fvcom_prepro&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>write_FVCOM_tsobcERSEM
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Export temperature and salinity forcing at the open boundary.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function write_FVCOM_tsobcERSEM(tsOBCFile,FileExists,time,nSiglay,Mobj,ERSEMdata,varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Export temperature and salinity forcing at the open boundary.
+
+ function write_FVCOM_tsobc(basename,time,nSiglay,in_temp,in_salt)
+
+ DESCRIPTION:
+    Setup an FVCOM hydrographic open boundary forcing file. Supply either
+    uniform values for temperature and salinity or 3D arrays (node,
+    sigma_layers, time).
+
+ INPUT
+    tsOBCFile - Filename to use as output
+    FileExists - True if tsOBCFile already exists and we only want to add
+    ERSEM variables to it.
+    time - Time (Modified Julian Days)
+    nSiglay - Number of sigma layers
+    Mobj - Mesh Object with the following fields:
+       - nObs - number of open boundaries
+       - read_obc_nodes - open boundary node cell array (length = nObs)
+       - siglay - sigma layer definitions
+       - siglev - sigma level definitions
+    ERSEMdata - struct with information to output to Netcdf File</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function write_FVCOM_tsobcERSEM(tsOBCFile,FileExists,time,nSiglay,Mobj,ERSEMdata,varargin)</a>
+0002 <span class="comment">% Export temperature and salinity forcing at the open boundary.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% function write_FVCOM_tsobc(basename,time,nSiglay,in_temp,in_salt)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% DESCRIPTION:</span>
+0007 <span class="comment">%    Setup an FVCOM hydrographic open boundary forcing file. Supply either</span>
+0008 <span class="comment">%    uniform values for temperature and salinity or 3D arrays (node,</span>
+0009 <span class="comment">%    sigma_layers, time).</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% INPUT</span>
+0012 <span class="comment">%    tsOBCFile - Filename to use as output</span>
+0013 <span class="comment">%    FileExists - True if tsOBCFile already exists and we only want to add</span>
+0014 <span class="comment">%    ERSEM variables to it.</span>
+0015 <span class="comment">%    time - Time (Modified Julian Days)</span>
+0016 <span class="comment">%    nSiglay - Number of sigma layers</span>
+0017 <span class="comment">%    Mobj - Mesh Object with the following fields:</span>
+0018 <span class="comment">%       - nObs - number of open boundaries</span>
+0019 <span class="comment">%       - read_obc_nodes - open boundary node cell array (length = nObs)</span>
+0020 <span class="comment">%       - siglay - sigma layer definitions</span>
+0021 <span class="comment">%       - siglev - sigma level definitions</span>
+0022 <span class="comment">%    ERSEMdata - struct with information to output to Netcdf File</span>
+0023 
+0024 <span class="comment">%    Optional keyword-argument pairs:</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">%    'strtime' = set to true to output the 'Times' variable</span>
+0027 <span class="comment">%    'inttime' = set to true to output the 'Itime' and 'Itime2' variables</span>
+0028 <span class="comment">%    'floattime' = set to true to output the 'time' variable</span>
+0029 <span class="comment">%</span>
+0030 <span class="comment">%    This script defaults to writing 'Times' only.</span>
+0031 <span class="comment">%</span>
+0032 <span class="comment">%    FVCOM needs only one of:</span>
+0033 <span class="comment">%        1. Times: character string of times</span>
+0034 <span class="comment">%        2. Itime and Itime2: integer days and milliseconds since midnight</span>
+0035 <span class="comment">%        3. time: float days.</span>
+0036 <span class="comment">%    FVCOM checks for these in the order above and this script defaults to</span>
+0037 <span class="comment">%    writing Times only. Adjust the keyword-argument pairs to your liking.</span>
+0038 <span class="comment">%</span>
+0039 <span class="comment">% OUTPUT:</span>
+0040 <span class="comment">%    FVCOM hydrographic open boundary netCDF file</span>
+0041 <span class="comment">%</span>
+0042 <span class="comment">% Author(s):</span>
+0043 <span class="comment">%    Geoff Cowles (University of Massachusetts Dartmouth)</span>
+0044 <span class="comment">%    Pierre Cazenave (Plymouth Marine Laboratory)</span>
+0045 <span class="comment">%    Karen Amoudry (National Oceanography Centre, Liverpool)</span>
+0046 <span class="comment">%    Ricardo Torres (Plymouth Marine Laboratory)</span>
+0047 <span class="comment">% PWC Revision history</span>
+0048 <span class="comment">%    2012-06-15 Added support for native MATLAB NetCDF routines. Requires</span>
+0049 <span class="comment">%    MATLAB 2010a or higher.</span>
+0050 <span class="comment">%    2012-07-16 Removed hard-coded nSiglay and nSiglev and instead moved to</span>
+0051 <span class="comment">%    arguments list.</span>
+0052 <span class="comment">%    2012-10-08 Updated help to reflect the fact nSiglev is calculated as</span>
+0053 <span class="comment">%    nSiglay+1.</span>
+0054 <span class="comment">%    2012-11-09 Add new arguments to use user defined temperature and</span>
+0055 <span class="comment">%    salinity.</span>
+0056 <span class="comment">%    2013-01-09 Add support for 3D input temperature and salinity (such as</span>
+0057 <span class="comment">%    might be generated with get_POLCOMS_tsobc.m.</span>
+0058 <span class="comment">%    2016-05-25 Removed the reads of the ASCII configuration files (which</span>
+0059 <span class="comment">%    was very slow) and instead extracted the relevant information from the</span>
+0060 <span class="comment">%    supplied mesh object. As such, the requirements for the mesh object</span>
+0061 <span class="comment">%    have changed, so hopefully this won't bite too many people in the</span>
+0062 <span class="comment">%    behind. Also simplified the allocation of the arrays when uniform</span>
+0063 <span class="comment">%    values are given (i.e. when in_salt and in_temp are scalars).</span>
+0064 <span class="comment">%</span>
+0065 <span class="comment">% KJA Revision history</span>
+0066 <span class="comment">%    Undated - Add better check for the size of the input arrays (works</span>
+0067 <span class="comment">%    with scalars).</span>
+0068 <span class="comment">%    2013-08-16 - Updated output of Itime2 to avoid rounding errors</span>
+0069 <span class="comment">%    when converting from double to single format.</span>
+0070 <span class="comment">% RJT Revision history</span>
+0071 <span class="comment">%    2013-12-05 Added functionality to output ERSEM nutrients</span>
+0072 <span class="comment">%    2017-04-10 Option to write to an existing file... i.e. a Nesting file</span>
+0073 <span class="comment">%==============================================================================</span>
+0074 
+0075 [~, subname] = fileparts(mfilename(<span class="string">'fullpath'</span>));
+0076 <span class="keyword">global</span> ftbverbose
+0077 <span class="keyword">if</span> ftbverbose
+0078     fprintf(<span class="string">'\nbegin : %s\n'</span>, subname)
+0079 <span class="keyword">end</span>
+0080 NNuts=length(ERSEMdata);
+0081 <span class="comment">% Default to string times as FVCOM looks for these first.</span>
+0082 strtime = true;
+0083 inttime = false;
+0084 floattime = false;
+0085 <span class="keyword">for</span> vv = 1:2:length(varargin)
+0086     <span class="keyword">switch</span> varargin{vv}
+0087         <span class="keyword">case</span> <span class="string">'strtime'</span>
+0088             strtime = true;
+0089         <span class="keyword">case</span> <span class="string">'inttime'</span>
+0090             inttime = true;
+0091         <span class="keyword">case</span> <span class="string">'floattime'</span>
+0092             floattime = true;
+0093     <span class="keyword">end</span>
+0094 <span class="keyword">end</span>
+0095 
+0096 obc_nodes = [Mobj.read_obc_nodes{:}]';
+0097 obc_h = Mobj.h(obc_nodes);
+0098 siglev = Mobj.siglev(obc_nodes, :);
+0099 siglay = Mobj.siglay(obc_nodes, :);
+0100 
+0101 nTimes = length(time);
+0102 nObc = length(obc_nodes);
+0103 nSiglev = nSiglay + 1;
+0104 
+0105 <span class="keyword">if</span> ftbverbose; fprintf(<span class="string">'obc reading complete\n'</span>); <span class="keyword">end</span>
+0106 
+0107 <span class="comment">%--------------------------------------------------------------------------</span>
+0108 <span class="comment">% Generate the requisite data</span>
+0109 <span class="comment">%--------------------------------------------------------------------------</span>
+0110 
+0111 
+0112 <span class="comment">% We need to make sigma level and layer data resolved for each node on the</span>
+0113 <span class="comment">% open boundary (in case we have hybrid coordinates).</span>
+0114 <span class="keyword">if</span> isvector(siglev)
+0115     siglev = repmat(siglev, [nObc, 1]);
+0116 <span class="keyword">end</span>
+0117 <span class="keyword">if</span> isvector(siglay)
+0118     siglay = repmat(siglay, [nObc, 1]);
+0119 <span class="keyword">end</span>
+0120 
+0121 <span class="comment">% Check we've got everything the right size and shape.</span>
+0122 <span class="keyword">if</span> nSiglev ~= size(Mobj.(ERSEMdata(1).name), 2) + 1 || size(siglev, 2) ~= size(Mobj.(ERSEMdata(1).name), 2) + 1 || size(siglev, 2) ~= size(Mobj.(ERSEMdata(2).name), 2) + 1
+0123     error(<span class="string">'Specified number sigma levels does not match supplied data'</span>)
+0124 <span class="keyword">end</span>
+0125 <span class="keyword">if</span> nSiglay ~= size(Mobj.(ERSEMdata(1).name), 2) || size(siglay, 2) ~= size(Mobj.(ERSEMdata(1).name), 2) || size(siglay, 2) ~= size(Mobj.(ERSEMdata(2).name), 2)
+0126     error(<span class="string">'Specified number of sigma layers does not match supplied data'</span>)
+0127 <span class="keyword">end</span>
+0128 
+0129 
+0130 <span class="comment">%--------------------------------------------------------------------------</span>
+0131 <span class="comment">% Set netCDF variables and dump to file</span>
+0132 <span class="comment">%--------------------------------------------------------------------------</span>
+0133 <span class="keyword">if</span> FileExists
+0134     <span class="comment">% open boundary forcing</span>
+0135     nc = netcdf.open(tsOBCFile, <span class="string">'WRITE'</span>);
+0136     <span class="comment">% read dimensions from the</span>
+0137     <span class="comment">% define dimensions</span>
+0138     dimids = netcdf.inqDimIDs(nc);
+0139     <span class="keyword">for</span> dd =1:length(dimids)
+0140         dimidname=netcdf.inqDim(nc,dimids(dd));
+0141         <span class="keyword">switch</span> dimidname
+0142             <span class="keyword">case</span>{<span class="string">'node'</span>}
+0143 
+0144                 nobc_dimid=netcdf.inqDimID(nc,dimidname);
+0145             <span class="keyword">case</span>{<span class="string">'DateStrLen'</span>}
+0146                 datestrlen_dimid=netcdf.inqDimID(nc,dimidname);
+0147             <span class="keyword">case</span>{<span class="string">'time'</span>}
+0148 
+0149                 time_dimid=netcdf.inqDimID(nc,dimidname);
+0150                 <span class="comment">% read time in case is different from data in file</span>
+0151                 file_times = netcdf.getVar(nc,netcdf.inqVarID(nc,<span class="string">'Times'</span>))';
+0152                 file_timem = datenum(file_times,<span class="string">'yyyy-mm-dd HH:MM:SS.FFF'</span>);
+0153             <span class="keyword">case</span>{<span class="string">'siglay'</span>}
+0154 
+0155                 siglay_dimid=netcdf.inqDimID(nc,dimidname);
+0156             <span class="keyword">case</span>{<span class="string">'siglev'</span>}
+0157                 siglev_dimid=netcdf.inqDimID(nc,dimidname);
+0158         <span class="keyword">end</span>
+0159     <span class="keyword">end</span>
+0160     netcdf.reDef(nc)
+0161 <span class="keyword">else</span>
+0162     <span class="comment">% open boundary forcing</span>
+0163     nc = netcdf.create(tsOBCFile, <span class="string">'clobber'</span>);
+0164 
+0165     <span class="comment">% define global attributes</span>
+0166     netcdf.putAtt(nc,netcdf.getConstant(<span class="string">'NC_GLOBAL'</span>),<span class="string">'title'</span>,<span class="string">'Open boundary ERSEM nudging'</span>)
+0167     netcdf.putAtt(nc,netcdf.getConstant(<span class="string">'NC_GLOBAL'</span>),<span class="string">'type'</span>,<span class="string">'FVCOM TIME SERIES OBC FABM FILE'</span>)
+0168     netcdf.putAtt(nc,netcdf.getConstant(<span class="string">'NC_GLOBAL'</span>),<span class="string">'history'</span>, sprintf(<span class="string">'File created with %s from the MATLAB fvcom-toolbox'</span>, subname))
+0169 
+0170 
+0171     <span class="comment">% define dimensions</span>
+0172     nobc_dimid=netcdf.defDim(nc,<span class="string">'nobc'</span>,nObc);
+0173     datestrlen_dimid=netcdf.defDim(nc,<span class="string">'DateStrLen'</span>,26);
+0174     time_dimid=netcdf.defDim(nc,<span class="string">'time'</span>,netcdf.getConstant(<span class="string">'NC_UNLIMITED'</span>));
+0175     siglay_dimid=netcdf.defDim(nc,<span class="string">'siglay'</span>,nSiglay);
+0176     siglev_dimid=netcdf.defDim(nc,<span class="string">'siglev'</span>,nSiglev);
+0177 
+0178     <span class="comment">% variables</span>
+0179     <span class="keyword">if</span> strtime
+0180         Times_varid=netcdf.defVar(nc,<span class="string">'Times'</span>,<span class="string">'NC_CHAR'</span>,[datestrlen_dimid, time_dimid]);
+0181         netcdf.putAtt(nc,Times_varid,<span class="string">'time_zone'</span>,<span class="string">'UTC'</span>);
+0182     <span class="keyword">end</span>
+0183 
+0184     <span class="keyword">if</span> floattime
+0185         time_varid=netcdf.defVar(nc,<span class="string">'time'</span>,<span class="string">'NC_FLOAT'</span>,time_dimid);
+0186         netcdf.putAtt(nc,time_varid,<span class="string">'long_name'</span>,<span class="string">'time'</span>);
+0187         netcdf.putAtt(nc,time_varid,<span class="string">'units'</span>,<span class="string">'days since 1858-11-17 00:00:00'</span>);
+0188         netcdf.putAtt(nc,time_varid,<span class="string">'time_zone'</span>,<span class="string">'UTC'</span>);
+0189     <span class="keyword">end</span>
+0190 
+0191     <span class="keyword">if</span> inttime
+0192         itime_varid=netcdf.defVar(nc,<span class="string">'Itime'</span>,<span class="string">'NC_INT'</span>,time_dimid);
+0193         netcdf.putAtt(nc,itime_varid,<span class="string">'units'</span>,<span class="string">'days since 1858-11-17 00:00:00'</span>);
+0194         netcdf.putAtt(nc,itime_varid,<span class="string">'format'</span>,<span class="string">'modified julian day (MJD)'</span>);
+0195         netcdf.putAtt(nc,itime_varid,<span class="string">'time_zone'</span>,<span class="string">'UTC'</span>);
+0196 
+0197         itime2_varid=netcdf.defVar(nc,<span class="string">'Itime2'</span>,<span class="string">'NC_INT'</span>,time_dimid);
+0198         netcdf.putAtt(nc,itime2_varid,<span class="string">'units'</span>,<span class="string">'msec since 00:00:00'</span>);
+0199         netcdf.putAtt(nc,itime2_varid,<span class="string">'time_zone'</span>,<span class="string">'UTC'</span>);
+0200     <span class="keyword">end</span>
+0201 
+0202     nobc_varid=netcdf.defVar(nc,<span class="string">'obc_nodes'</span>,<span class="string">'NC_INT'</span>,nobc_dimid);
+0203     netcdf.putAtt(nc,nobc_varid,<span class="string">'long_name'</span>,<span class="string">'Open Boundary Node Number'</span>);
+0204     netcdf.putAtt(nc,nobc_varid,<span class="string">'grid'</span>,<span class="string">'obc_grid'</span>);
+0205     netcdf.putAtt(nc,nobc_varid,<span class="string">'type'</span>,<span class="string">'data'</span>);
+0206 
+0207     obc_h_varid=netcdf.defVar(nc,<span class="string">'obc_h'</span>,<span class="string">'NC_FLOAT'</span>,nobc_dimid);
+0208     netcdf.putAtt(nc,obc_h_varid,<span class="string">'long_name'</span>,<span class="string">'Open Boundary Depth'</span>);
+0209     netcdf.putAtt(nc,obc_h_varid,<span class="string">'units'</span>,<span class="string">'m'</span>);
+0210     netcdf.putAtt(nc,obc_h_varid,<span class="string">'grid'</span>,<span class="string">'obc_grid'</span>);
+0211     netcdf.putAtt(nc,obc_h_varid,<span class="string">'type'</span>,<span class="string">'data'</span>);
+0212 
+0213     obc_siglev_varid=netcdf.defVar(nc,<span class="string">'siglev'</span>,<span class="string">'NC_FLOAT'</span>,[nobc_dimid,siglev_dimid]);
+0214     netcdf.putAtt(nc,obc_siglev_varid,<span class="string">'long_name'</span>,<span class="string">'ocean_sigma/general_coordinate'</span>);
+0215     netcdf.putAtt(nc,obc_siglev_varid,<span class="string">'grid'</span>,<span class="string">'obc_grid'</span>);
+0216 
+0217     obc_siglay_varid=netcdf.defVar(nc,<span class="string">'siglay'</span>,<span class="string">'NC_FLOAT'</span>,[nobc_dimid,siglay_dimid]);
+0218     netcdf.putAtt(nc,obc_siglay_varid,<span class="string">'long_name'</span>,<span class="string">'ocean_sigma/general_coordinate'</span>);
+0219     netcdf.putAtt(nc,obc_siglay_varid,<span class="string">'grid'</span>,<span class="string">'obc_grid'</span>);
+0220 <span class="keyword">end</span>
+0221 
+0222 
+0223 <span class="comment">% nutrients here</span>
+0224 <span class="keyword">for</span> nuts=1:NNuts
+0225     varidN{nuts}=[<span class="string">'obc_'</span>,ERSEMdata(nuts).name,<span class="string">'_varid'</span>];
+0226     eval([varidN{nuts},<span class="string">'=netcdf.defVar(nc,'''</span>,ERSEMdata(nuts).name,<span class="string">''',''NC_FLOAT'',[nobc_dimid,siglay_dimid,time_dimid]);'</span>])
+0227     eval([<span class="string">'netcdf.putAtt(nc,'</span>,varidN{nuts},<span class="string">',''long_name'','''</span>,ERSEMdata(nuts).long_name,<span class="string">''');'</span>])
+0228     eval([<span class="string">'netcdf.putAtt(nc,'</span>,varidN{nuts},<span class="string">',''units'','''</span>,ERSEMdata(nuts).units,<span class="string">''');'</span>])
+0229     eval([<span class="string">'netcdf.putAtt(nc,'</span>,varidN{nuts},<span class="string">',''grid'',''obc_grid'');'</span>])
+0230 <span class="comment">% enable compression on the big variables.</span>
+0231     eval([<span class="string">'netcdf.defVarDeflate(nc, '</span>,varidN{nuts},<span class="string">', true, true, 7);'</span>])
+0232 
+0233     <span class="comment">% obc_salinity_varid=netcdf.defVar(nc,'obc_salinity','NC_FLOAT',[nobc_dimid,siglay_dimid,time_dimid]);</span>
+0234     <span class="comment">% netcdf.putAtt(nc,obc_salinity_varid,'long_name','sea_water_salinity');</span>
+0235     <span class="comment">% netcdf.putAtt(nc,obc_salinity_varid,'units','PSU');</span>
+0236     <span class="comment">% netcdf.putAtt(nc,obc_salinity_varid,'grid','obc_grid');</span>
+0237 <span class="keyword">end</span>
+0238 
+0239 
+0240 
+0241 
+0242 
+0243 <span class="comment">% end definitions</span>
+0244 netcdf.endDef(nc);
+0245 
+0246 <span class="keyword">if</span> ~FileExists
+0247     <span class="comment">% grid and time information already exist in file...</span>
+0248     <span class="comment">% write data</span>
+0249     netcdf.putVar(nc,nobc_varid,obc_nodes);
+0250     netcdf.putVar(nc,obc_h_varid,obc_h);
+0251     netcdf.putVar(nc,obc_siglev_varid,siglev);
+0252     netcdf.putVar(nc,obc_siglay_varid,siglay);
+0253     <span class="keyword">if</span> strtime
+0254         nStringOut = char();
+0255         [nYr, nMon, nDay, nHour, nMin, nSec] = mjulian2greg(time);
+0256         <span class="keyword">for</span> i=1:nTimes
+0257             nDate = [nYr(i), nMon(i), nDay(i), nHour(i), nMin(i), nSec(i)];
+0258             nStringOut = [nStringOut, sprintf(<span class="string">'%04i/%02i/%02i %02i:%02i:%09.6f'</span>, nDate)];
+0259         <span class="keyword">end</span>
+0260         netcdf.putVar(nc,Times_varid,[0, 0],[26, nTimes],nStringOut);
+0261     <span class="keyword">end</span>
+0262     <span class="keyword">if</span> floattime
+0263         netcdf.putVar(nc,time_varid,0,numel(time),time);
+0264     <span class="keyword">end</span>
+0265     <span class="keyword">if</span> inttime
+0266         netcdf.putVar(nc,itime_varid,floor(time));
+0267         <span class="comment">% netcdf.putVar(nc,itime2_varid,0,numel(time),mod(time,1)*24*3600*1000); % PWC original</span>
+0268         <span class="comment">% KJA edit: avoids rounding errors when converting from double to single</span>
+0269         <span class="comment">% Rounds to nearest multiple of the number of msecs in an hour</span>
+0270         netcdf.putVar(nc,itime2_varid,0,numel(time),round((mod(time,1)*24*3600*1000)/(3600*1000))*(3600*1000));
+0271     <span class="keyword">end</span>
+0272     <span class="keyword">for</span> nuts=1:NNuts
+0273         eval([<span class="string">'netcdf.putVar(nc,'</span>,varidN{nuts},<span class="string">',Mobj.(ERSEMdata(nuts).name));'</span>])
+0274             disp([<span class="string">'Finished with variable, '</span>,ERSEMdata(nuts).name])
+0275      <span class="keyword">end</span>
+0276 
+0277 <span class="keyword">else</span> <span class="comment">% file exist and time could be different... check and interpolate if necessary</span>
+0278     <span class="keyword">if</span> length(time) &lt; length(file_timem)
+0279         <span class="keyword">for</span> nuts=1:NNuts
+0280             data= Mobj.(ERSEMdata(nuts).name);
+0281             dataint = nan(size(data, 1),size(data, 2),length(file_timem));
+0282             <span class="keyword">for</span> nn=1:size(data, 1)
+0283                 [X1,Y1]=meshgrid(file_timem- 678942,siglay(nn,:));
+0284                 [X,Y]=meshgrid(time,siglay(nn,:));
+0285                 <span class="comment">% interpolate ERSEMdata...</span>
+0286                 dataint(nn,:,:) = interp2(X,Y,squeeze(data(nn,:,:)),X1,Y1);
+0287             <span class="keyword">end</span>
+0288             Nut_id= netcdf.inqVarID(nc,ERSEMdata(nuts).name);
+0289 
+0290             netcdf.putVar(nc,Nut_id,dataint);
+0291             disp([<span class="string">'Finished with variable, '</span>,ERSEMdata(nuts).name])
+0292         <span class="keyword">end</span>
+0293     <span class="keyword">else</span>
+0294         <span class="comment">% everything is in the same time frequency</span>
+0295         <span class="keyword">for</span> nuts=1:NNuts
+0296             eval([<span class="string">'netcdf.putVar(nc,'</span>,varidN{nuts},<span class="string">',Mobj.(ERSEMdata(nuts).name));'</span>])
+0297             disp([<span class="string">'We have reversed the Z dimension of variable , '</span>,ERSEMdata(nuts).name])
+0298             disp([<span class="string">'Finished with variable, '</span>,ERSEMdata(nuts).name])
+0299          <span class="keyword">end</span>
+0300 
+0301     <span class="keyword">end</span>
+0302 <span class="keyword">end</span>
+0303 <span class="comment">% close file</span>
+0304 netcdf.close(nc);
+0305 
+0306 <span class="keyword">if</span> ftbverbose
+0307     fprintf(<span class="string">'end   : %s\n'</span>, subname)
+0308 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Wed 20-Feb-2019 16:06:01 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

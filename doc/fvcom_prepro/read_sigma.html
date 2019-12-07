@@ -1,0 +1,285 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of read_sigma</title>
+  <meta name="keywords" content="read_sigma">
+  <meta name="description" content="Read an FVCOM sigma layers file and output z values into Mobj.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">fvcom_prepro</a> &gt; read_sigma.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for fvcom_prepro&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>read_sigma
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Read an FVCOM sigma layers file and output z values into Mobj.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function Mobj = read_sigma(Mobj, sigmafile) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Read an FVCOM sigma layers file and output z values into Mobj.
+
+ Mobj = read_sigma(Mobj, sigmafile)
+
+ DESCRIPTION:
+   Read a sigma file and calculate the sigma layer depths
+
+ INPUT:
+   Mobj:       Mesh object which must contain Mobj.h (depths).
+   sigmafile : Full path to an FVCOM sigma.dat file.
+
+ OUTPUT:
+   Mobj:       Mesh object with four new fields:
+               - siglayz and siglevz: contain depths of the sigma layers
+               and levels at each grid node.
+               - siglayzc and siglevzc: contain depths of the sigma layers
+               and levels at each element centre.
+               - siglay and siglev: the sigma layer and levels in the
+               range 0 to -1.
+
+ EXAMPLE USAGE:
+   Mobj = read_sigma(Mobj, 'sigma.dat')
+
+ Author(s):
+   Pierre Cazenave (Plymouth Marine Laboratory)
+
+ Revision history
+   2013-01-08 Based on the code in show_sigma.m but instead of calculating
+   sigma layers along a user-defined line, the depths are calculated for
+   each node in the unstructured grid.
+   2013-01-10 Added two new outputs to the returned Mobj (siglay and
+   siglev). They're useful in write_FVCOM_tsobc.m.
+   2013-04-23 Add support for geometric sigma distributions as well as
+   slightly more robust reading of and checks on the parameters in the
+   input file. Also changed the way the uniform distribution is calculated
+   (by using a P_SIGMA value of 1 and the sigma_geo.m function rather than
+   fiddling around with ranges, although the output is the same).
+   2014-04-28 Add the sigma levels for the element centres in addition to
+   the element nodes.
+   2016-05-25 Made the sigma distributions be spatially resolved for the
+   UNIFORM, GEOMETRIC and GENERALIZED cases. Also removed the UNIFORM
+   distribution from the checks on the values of parameters which only
+   belong in the GENERALIZED case.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="nodes2elems.html" class="code" title="function fieldout = nodes2elems(fieldin,Mobj)">nodes2elems</a>	Transfer a field from vertices to elements</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function Mobj = read_sigma(Mobj, sigmafile)</a>
+0002 <span class="comment">% Read an FVCOM sigma layers file and output z values into Mobj.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% Mobj = read_sigma(Mobj, sigmafile)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% DESCRIPTION:</span>
+0007 <span class="comment">%   Read a sigma file and calculate the sigma layer depths</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">% INPUT:</span>
+0010 <span class="comment">%   Mobj:       Mesh object which must contain Mobj.h (depths).</span>
+0011 <span class="comment">%   sigmafile : Full path to an FVCOM sigma.dat file.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% OUTPUT:</span>
+0014 <span class="comment">%   Mobj:       Mesh object with four new fields:</span>
+0015 <span class="comment">%               - siglayz and siglevz: contain depths of the sigma layers</span>
+0016 <span class="comment">%               and levels at each grid node.</span>
+0017 <span class="comment">%               - siglayzc and siglevzc: contain depths of the sigma layers</span>
+0018 <span class="comment">%               and levels at each element centre.</span>
+0019 <span class="comment">%               - siglay and siglev: the sigma layer and levels in the</span>
+0020 <span class="comment">%               range 0 to -1.</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">% EXAMPLE USAGE:</span>
+0023 <span class="comment">%   Mobj = read_sigma(Mobj, 'sigma.dat')</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">% Author(s):</span>
+0026 <span class="comment">%   Pierre Cazenave (Plymouth Marine Laboratory)</span>
+0027 <span class="comment">%</span>
+0028 <span class="comment">% Revision history</span>
+0029 <span class="comment">%   2013-01-08 Based on the code in show_sigma.m but instead of calculating</span>
+0030 <span class="comment">%   sigma layers along a user-defined line, the depths are calculated for</span>
+0031 <span class="comment">%   each node in the unstructured grid.</span>
+0032 <span class="comment">%   2013-01-10 Added two new outputs to the returned Mobj (siglay and</span>
+0033 <span class="comment">%   siglev). They're useful in write_FVCOM_tsobc.m.</span>
+0034 <span class="comment">%   2013-04-23 Add support for geometric sigma distributions as well as</span>
+0035 <span class="comment">%   slightly more robust reading of and checks on the parameters in the</span>
+0036 <span class="comment">%   input file. Also changed the way the uniform distribution is calculated</span>
+0037 <span class="comment">%   (by using a P_SIGMA value of 1 and the sigma_geo.m function rather than</span>
+0038 <span class="comment">%   fiddling around with ranges, although the output is the same).</span>
+0039 <span class="comment">%   2014-04-28 Add the sigma levels for the element centres in addition to</span>
+0040 <span class="comment">%   the element nodes.</span>
+0041 <span class="comment">%   2016-05-25 Made the sigma distributions be spatially resolved for the</span>
+0042 <span class="comment">%   UNIFORM, GEOMETRIC and GENERALIZED cases. Also removed the UNIFORM</span>
+0043 <span class="comment">%   distribution from the checks on the values of parameters which only</span>
+0044 <span class="comment">%   belong in the GENERALIZED case.</span>
+0045 
+0046 [~, subname] = fileparts(mfilename(<span class="string">'fullpath'</span>));
+0047 
+0048 <span class="keyword">global</span> ftbverbose
+0049 <span class="keyword">if</span> ftbverbose
+0050     fprintf(<span class="string">'\nbegin : %s\n'</span>, subname)
+0051 <span class="keyword">end</span>
+0052 
+0053 fid = fopen(sigmafile,<span class="string">'r'</span>);
+0054 assert(fid &gt;= 0, <span class="string">'Sigma file: %s does not exist'</span>, sigmafile)
+0055 
+0056 <span class="keyword">while</span> ~feof(fid)
+0057     line = fgetl(fid);
+0058     <span class="keyword">if</span> isempty(line) || strncmp(line, <span class="string">'!'</span>, 1) || ~ischar(line)
+0059         <span class="keyword">continue</span>
+0060     <span class="keyword">end</span>
+0061 
+0062     <span class="comment">% Clean up the input string to make matching a bit easier (trim</span>
+0063     <span class="comment">% whitespace and remove duplicate spaces in the keywords).</span>
+0064     C = strtrim(regexpi(regexprep(line, <span class="string">'\s+'</span>, <span class="string">' '</span>), <span class="string">'='</span>, <span class="string">'split'</span>));
+0065 
+0066     <span class="keyword">switch</span> lower(C{1})
+0067         <span class="keyword">case</span> <span class="string">'number of sigma levels'</span>
+0068             nlev = str2double(C{2});
+0069         <span class="keyword">case</span> <span class="string">'sigma coordinate type'</span>
+0070             sigtype = C{2};
+0071         <span class="keyword">case</span> <span class="string">'sigma power'</span>
+0072             sigpow = str2double(C{2});
+0073         <span class="keyword">case</span> <span class="string">'du'</span>
+0074             du = str2double(C{2});
+0075         <span class="keyword">case</span> <span class="string">'dl'</span>
+0076             dl = str2double(C{2});
+0077         <span class="keyword">case</span> <span class="string">'min constant depth'</span>
+0078             min_constant_depth = str2double(C{2});
+0079         <span class="keyword">case</span> <span class="string">'ku'</span>
+0080             ku = str2double(C{2});
+0081         <span class="keyword">case</span> <span class="string">'kl'</span>
+0082             kl = str2double(C{2});
+0083         <span class="keyword">case</span> <span class="string">'zku'</span>
+0084             s = str2double(regexp(C{2}, <span class="string">' '</span>, <span class="string">'split'</span>));
+0085             zku = zeros(ku, 1);
+0086             <span class="keyword">for</span> i = 1:ku
+0087                 zku(i) = s(i);
+0088             <span class="keyword">end</span>
+0089         <span class="keyword">case</span> <span class="string">'zkl'</span>
+0090             s = str2double(regexp(C{2}, <span class="string">' '</span>, <span class="string">'split'</span>));
+0091             zkl = zeros(kl, 1);
+0092             <span class="keyword">for</span> i = 1:kl
+0093                 zkl(i) = s(i);
+0094             <span class="keyword">end</span>
+0095     <span class="keyword">end</span>
+0096 <span class="keyword">end</span>
+0097 
+0098 <span class="comment">% Do some checks if we've got uniform or generalised coordinates to make</span>
+0099 <span class="comment">% sure the input is correct.</span>
+0100 <span class="keyword">if</span> strcmpi(sigtype, <span class="string">'GENERALIZED'</span>)
+0101     <span class="keyword">if</span> numel(zku) ~= ku
+0102         warning(<span class="string">'Number of zku values does not match the number specified in ku'</span>)
+0103     <span class="keyword">end</span>
+0104     <span class="keyword">if</span> numel(zkl) ~= kl
+0105         warning(<span class="string">'Number of zkl values does not match the number specified in kl'</span>)
+0106     <span class="keyword">end</span>
+0107 <span class="keyword">end</span>
+0108 
+0109 <span class="keyword">if</span> ftbverbose
+0110     <span class="comment">% Should be present in all sigma files.</span>
+0111     fprintf(<span class="string">'nlev\t%d\n'</span>, nlev)
+0112     fprintf(<span class="string">'sigtype\t%s\n'</span>, sigtype)
+0113     Mobj.nlev = nlev;
+0114     Mobj.sigtype = sigtype;
+0115     <span class="comment">% Only present in geometric sigma files.</span>
+0116     <span class="keyword">if</span> strcmpi(sigtype, <span class="string">'GEOMETRIC'</span>)
+0117         fprintf(<span class="string">'sigpow\t%d\n'</span>, sigpow)
+0118         Mobj.sigpow = sigpow;
+0119     <span class="keyword">end</span>
+0120     
+0121     <span class="comment">% Only in the generalised or uniform sigma files.</span>
+0122     <span class="keyword">if</span> strcmpi(sigtype, <span class="string">'GENERALIZED'</span>)
+0123         fprintf(<span class="string">'du\t%d\n'</span>, du)
+0124         fprintf(<span class="string">'dl\t%d\n'</span>, dl)
+0125         fprintf(<span class="string">'min_constant_depth\t%f\n'</span>, min_constant_depth)
+0126         fprintf(<span class="string">'ku\t%d\n'</span>, ku)
+0127         fprintf(<span class="string">'kl\t%d\n'</span>, kl)
+0128         fprintf(<span class="string">'zku\t%d\n'</span>, zku)
+0129         fprintf(<span class="string">'zkl\t%d\n'</span>, zkl)
+0130         Mobj.du = du;
+0131         Mobj.dl = dl;
+0132         Mobj.min_constant_depth = min_constant_depth;
+0133         Mobj.ku = ku;
+0134         Mobj.kl = kl;
+0135         Mobj.zku = zku;
+0136         Mobj.zkl = zkl;
+0137     <span class="keyword">end</span>
+0138     <span class="keyword">if</span> strcmpi(sigtype, <span class="string">'TANH'</span>)
+0139         fprintf(<span class="string">'du\t%d\n'</span>, du)
+0140         fprintf(<span class="string">'dl\t%d\n'</span>, dl)
+0141         Mobj.du = du;
+0142         Mobj.dl = dl;
+0143     <span class="keyword">end</span>
+0144 <span class="keyword">end</span>
+0145 
+0146 <span class="comment">% Calculate the sigma distributions at each grid node.</span>
+0147 nx = length(Mobj.h);
+0148 <span class="keyword">switch</span> lower(sigtype)
+0149     <span class="keyword">case</span> <span class="string">'generalized'</span>
+0150         z = nan([nx, nlev]);
+0151         h = Mobj.h; <span class="comment">% avoids broadcasting Mobj on every iteration</span>
+0152         <span class="comment">% Not sure if a parfor is wise here as the pool start up time might</span>
+0153         <span class="comment">% exceed the run time. For big grids, the parfor is probably a wise</span>
+0154         <span class="comment">% move.</span>
+0155         parfor i = 1:nx
+0156             z(i, :) = sigma_gen(nlev, dl, du, kl, ku, zkl, zku, <span class="keyword">...</span>
+0157                 h(i), min_constant_depth);
+0158         <span class="keyword">end</span>
+0159         clear h
+0160     <span class="keyword">case</span> <span class="string">'uniform'</span>
+0161         z = repmat(sigma_geo(nlev, 1), [nx, 1]);
+0162     <span class="keyword">case</span> <span class="string">'geometric'</span>
+0163         z = repmat(sigma_geo(nlev, sigpow), [nx, 1]);
+0164     <span class="keyword">case</span> <span class="string">'tanh'</span>
+0165         z = repmat(sigma_tanh(nlev, dl,du), [nx, 1]);
+0166     <span class="keyword">otherwise</span>
+0167         error(<span class="string">'Don''t recognise sigtype %s (is it supported?)'</span>, sigtype)
+0168 <span class="keyword">end</span>
+0169 
+0170 <span class="comment">% Create a depth array for the element centres.</span>
+0171 hc = <a href="nodes2elems.html" class="code" title="function fieldout = nodes2elems(fieldin,Mobj)">nodes2elems</a>(Mobj.h, Mobj);
+0172 ne = length(hc);
+0173 
+0174 <span class="comment">% Create a siglay variable (i.e. midpoint in the sigma levels).</span>
+0175 zlay = z(:, 1:end - 1) + (diff(z, [], 2) ./ 2);
+0176 zlayc = nan(ne, nlev - 1);
+0177 zc = nan(ne, nlev);
+0178 <span class="keyword">for</span> i = 1:nlev
+0179     zc(:, i) = <a href="nodes2elems.html" class="code" title="function fieldout = nodes2elems(fieldin,Mobj)">nodes2elems</a>(z(:, i), Mobj);
+0180     <span class="keyword">if</span> i ~= nlev
+0181         zlayc(:, i) = <a href="nodes2elems.html" class="code" title="function fieldout = nodes2elems(fieldin,Mobj)">nodes2elems</a>(zlay(:, i), Mobj);
+0182     <span class="keyword">end</span>
+0183 <span class="keyword">end</span>
+0184 Mobj.siglevz = repmat(Mobj.h, 1, nlev) .* z;
+0185 Mobj.siglayz = repmat(Mobj.h, 1, nlev-1) .* zlay;
+0186 Mobj.siglevzc = repmat(hc, 1, nlev) .* zc;
+0187 Mobj.siglayzc = repmat(hc, 1, nlev-1) .* zlayc;
+0188 Mobj.siglayc = zlayc;
+0189 Mobj.siglevc = zc;
+0190 <span class="comment">% Add the sigma levels and layers to the Mobj.</span>
+0191 Mobj.siglev = z;
+0192 Mobj.siglay = zlay;
+0193 
+0194 <span class="keyword">if</span> ftbverbose
+0195     fprintf(<span class="string">'end   : %s\n'</span>, subname)
+0196 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Wed 20-Feb-2019 16:06:01 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>
