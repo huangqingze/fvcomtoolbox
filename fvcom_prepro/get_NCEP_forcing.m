@@ -749,15 +749,15 @@ end
 if isfield(data, 'prate') && isfield(data, 'lhtfl')
     Llv = 2.5*10^6;
     rho = 1025; % using a typical value for seawater.
-    Et = data.lhtfl.data/Llv/rho;
-    data.P_E.data = data.prate.data - Et;
+    evap = data.lhtfl.data/Llv/rho;
+    data.P_E.data = data.prate.data - evap;
     data.P_E.lon = data.prate.lon;
     data.P_E.lat = data.prate.lat;
     data.P_E.time = data.prate.time;
     % Evaporation and precipitation need to have the same sign for FVCOM (ocean
     % losing water is negative in both instances). So, flip the evaporation
     % here.
-    data.Et.data = -Et;
+    data.Et.data = -evap;
     data.Et.time = data.prate.time;
     data.Et.lon = data.prate.lon;
     data.Et.lat = data.prate.lat;
