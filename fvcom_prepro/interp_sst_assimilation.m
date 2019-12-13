@@ -28,7 +28,7 @@ function Mobj = interp_sst_assimilation(Mobj, conf, output_file)
 % EXAMPLE USAGE:
 %   Mobj = read_fvcom_mesh('casename.grd');
 %   conf.sst_dir = '/home/user/GHRSST/';
-%   conf.sst_pattern = '-JPL-L4_GHRSST-SSTfnd-MUR-GLOB-v02.0-fv04.1.nc';
+%   conf.sst_pattern = 'MUR-JPL-L4-GLOB-v4.1.nc';
 %   interp_sst_assimilation(Mobj, conf, 'casename_sstgrd.nc');
 %
 % Author(s)
@@ -88,12 +88,12 @@ if license('test', 'Distrib_Computing_Toolbox')
 end
 
 %if ftbverbose
-    fprintf('Progress:\n');
-    fprintf([repmat('.', 1, length(file_list)), '\n']);
+%     fprintf('Progress:\n');
+%     fprintf([repmat('.', 1, length(file_list)), '\n']);
 %end
 parfor ff = 1:length(file_list)
     %if ftbverbose
-        fprintf('|');
+    %    fprintf('|');
     %end
     sst_eo = ncread(file_list{ff}, 'analysed_sst') - 273.15;
     mask = ncread(file_list{ff}, 'mask');
@@ -213,16 +213,16 @@ fprintf('done.\n')
 % Close the netCDF file(s)
 netcdf.close(nc);
 
-% Mobj.assim.sst.data = sst;
-% Mobj.assim.sst.time = time;
+Mobj.assim.sst.data = sst;
+Mobj.assim.sst.time = time;
 
-Mobj.assim.sst.data = [Mobj.assim.sst.data,sst];
-Mobj.assim.sst.time = [Mobj.assim.sst.time;time];
+% Mobj.assim.sst.data = [Mobj.assim.sst.data,sst];
+% Mobj.assim.sst.time = [Mobj.assim.sst.time;time];
 
 % Plot sst if needed.
 % for aa = 1:size(sst,2)
 %     plot_field(Mobj,sst(:,aa))
-%     pause
+%     pause(0.1)
 % end
 
 if ftbverbose
