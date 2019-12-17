@@ -667,6 +667,12 @@ for i=1:length(suffixes)
                 %    data.nlwrs.node + data.nswrs.node);
                 hf = data.nlwrs.node + data.nswrs.node - ...
                     data.shtfl.node - data.lhtfl.node;
+                % plot
+                % plot(hf(1,:),'DisplayName','hf')
+                % plot(data.nlwrs.node(1,:),'DisplayName','data.nlwrs.node')
+                % plot(data.nswrs.node(1,:),'DisplayName','data.nswrs.node')
+                % plot(data.shtfl.node(1,:),'DisplayName','data.shtfl.node')
+                % plot(data.lhtfl.node(1,:),'DisplayName','data.lhtfl.node')
                 netcdf.putVar(nc,nhf_varid,[0,0],[nNodes,ntimes],hf)
             elseif strcmpi(used_fnames{ff}, 'nswrs') || strcmpi(used_fnames{ff}, 'nlwrs')
                 % We've already done the net surface heat flux but we're on
