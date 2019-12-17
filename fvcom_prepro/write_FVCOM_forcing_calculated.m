@@ -193,11 +193,11 @@ lat = Mobj.lat;
 % Create the netCDF header for the FVCOM forcing file
 %--------------------------------------------------------------------------
 
-% if multi_out
+if multi_out
     suffixes = {'_wnd', '_hfx', '_prate', '_air_press'};
-% else
-%     suffixes = {'_wnd'};
-% end
+else
+    suffixes = {'_wnd'};
+end
 
 % We use this variable to indicate whether we were given precalculated net
 % surface heat flux.
@@ -309,7 +309,7 @@ for i=1:length(suffixes)
         % variables if we're in the wrong file loop.
         switch fnames{vv}
             case {'uwnd', 'u10'}
-                if strcmpi(suffixes{i}, '_wnd') %|| ~multi_out
+                if strcmpi(suffixes{i}, '_wnd') || ~multi_out
                     % wind components (assume we have v if we have u)
                     % On the elements
                     % u10_varid=netcdf.defVar(nc,'U10','NC_FLOAT',[nele_dimid, time_dimid]);
@@ -340,21 +340,25 @@ for i=1:length(suffixes)
 
                     % Only on the elements (both U10/V10 and uwind_speed
                     % and vwind_speed).
-                    used_varids = [used_varids, {'u10_varid', 'v10_varid', 'uwind_varid', 'vwind_varid'}];
+                    % used_varids = [used_varids, {'u10_varid', 'v10_varid', 'uwind_varid', 'vwind_varid'}];
+                    used_varids = [used_varids, {'uwind_varid', 'vwind_varid'}];
                     % We should only have one of {u,v}wnd or {u,v}10 as the
                     % field name and used_fnames needs to reflect that.
                     if isfield(data, 'uwnd') && ~isfield(data, 'u10')
                         % We have uwnd and vwnd variants (no u10/v10).
-                        used_fnames = [used_fnames, {'uwnd', 'vwnd', 'uwnd', 'vwnd'}];
+                        % used_fnames = [used_fnames, {'uwnd', 'vwnd', 'uwnd', 'vwnd'}];
+                        used_fnames = [used_fnames, {'uwnd', 'vwnd'}];
                     elseif isfield(data, 'u10') && ~isfield(data, 'uwnd')
                         % We have only u10 and v10 variants (no uwnd/vwnd)
-                        used_fnames = [used_fnames, {'u10', 'v10', 'u10', 'v10'}];
+                        % used_fnames = [used_fnames, {'u10', 'v10', 'u10', 'v10'}];
+                        used_fnames = [used_fnames, {'u10', 'v10'}];
                     elseif isfield(data, 'u10') && isfield(data, 'uwnd')
                         error('Supply only one set of wind fields: ''uwnd'' and ''vwnd'' or ''u10'' and ''v10''.')
                     else
                         error('Unrecognised wind field names.')
                     end
-                    used_dims = [used_dims, {'nElems', 'nElems', 'nElems', 'nElems'}];
+                    % used_dims = [used_dims, {'nElems', 'nElems', 'nElems', 'nElems'}];
+                    used_dims = [used_dims, {'nElems', 'nElems'}];
                 end
 
             case {'vwnd', 'v10'}
@@ -363,7 +367,7 @@ for i=1:length(suffixes)
                 true;
                 
             case {'Et', 'evap'}
-                if strcmpi(suffixes{i}, '_prate') %|| ~multi_out
+                if strcmpi(suffixes{i}, '_prate') || ~multi_out
                     % Evaporation
                     pevpr_varid=netcdf.defVar(nc,'evap','NC_FLOAT',[node_dimid, time_dimid]);
                     netcdf.putAtt(nc,pevpr_varid,'long_name','Evaporation');
@@ -378,7 +382,7 @@ for i=1:length(suffixes)
                 end
 
             case {'prate'}%'prate'
-                if strcmpi(suffixes{i}, '_prate') %|| ~multi_out
+                if strcmpi(suffixes{i}, '_prate') || ~multi_out
                     % Precipitation (or precipitation - evaporation)
                     prate_varid=netcdf.defVar(nc,'precip','NC_FLOAT',[node_dimid, time_dimid]);
                     netcdf.putAtt(nc,prate_varid,'long_name','Precipitation');
@@ -393,7 +397,7 @@ for i=1:length(suffixes)
                 end
                 
             case {'slp', 'pres', 'pressfc'}
-                if strcmpi(suffixes{i}, '_air_press') %|| ~multi_out
+                if strcmpi(suffixes{i}, '_air_press') || ~multi_out
                     % Sea level pressure
                     slp_varid=netcdf.defVar(nc,'air_pressure','NC_FLOAT',[node_dimid, time_dimid]);
                     netcdf.putAtt(nc,slp_varid,'long_name','Surface air pressure');
@@ -407,7 +411,7 @@ for i=1:length(suffixes)
                 end
 
             % case 'lcc'
-            %     if strcmpi(suffixes{i}, '_low_cloud_cover') %|| ~multi_out
+            %     if strcmpi(suffixes{i}, '_low_cloud_cover') || ~multi_out
             %         % Low cloud cover
             %         slp_varid=netcdf.defVar(nc,'low_cloud_cover','NC_FLOAT',[node_dimid, time_dimid]);
             %         netcdf.putAtt(nc,slp_varid,'long_name','Low cloud cover');
@@ -435,7 +439,7 @@ for i=1:length(suffixes)
             %     end
 
             case 'nswrs'
-                if strcmpi(suffixes{i}, '_hfx') %|| ~multi_out
+                if strcmpi(suffixes{i}, '_hfx') || ~multi_out
                     % Net shortwave radiation
                     nswrs_varid=netcdf.defVar(nc,'short_wave','NC_FLOAT',[node_dimid, time_dimid]);
                     netcdf.putAtt(nc,nswrs_varid,'long_name','Short Wave Radiation');
@@ -463,7 +467,7 @@ for i=1:length(suffixes)
             %     end
 
             case {'air', 'tmp2m'}
-                if strcmpi(suffixes{i}, '_hfx') %|| ~multi_out
+                if strcmpi(suffixes{i}, '_hfx') || ~multi_out
                     % Air temperature.
                     airt_varid = netcdf.defVar(nc, 'air_temperature', 'NC_FLOAT', [node_dimid, time_dimid]);
                     netcdf.putAtt(nc, airt_varid, 'long_name', 'Surface air temperature');
@@ -477,7 +481,7 @@ for i=1:length(suffixes)
                 end
 
             case {'rhum'}
-                if strcmpi(suffixes{i}, '_hfx') %|| ~multi_out
+                if strcmpi(suffixes{i}, '_hfx') || ~multi_out
                     % Relative humidity
                     rhum_varid = netcdf.defVar(nc, 'relative_humidity', 'NC_FLOAT', [node_dimid, time_dimid]);
                     netcdf.putAtt(nc, rhum_varid, 'long_name', 'surface air relative humidity');
@@ -505,7 +509,7 @@ for i=1:length(suffixes)
             %     end
 
             case {'dlwrf', 'dlwsfc'}
-                if strcmpi(suffixes{i}, '_hfx') %|| ~multi_out
+                if strcmpi(suffixes{i}, '_hfx') || ~multi_out
                     % Downward longwave radiation
                     dlwrf_varid = netcdf.defVar(nc, 'long_wave', 'NC_FLOAT', [node_dimid, time_dimid]);
                     netcdf.putAtt(nc, dlwrf_varid, 'long_name', 'Downward solar longwave radiation flux');
