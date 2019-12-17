@@ -81,13 +81,13 @@ yc = nodes2elems(y, Mobj);
 nc = netcdf.create([fileprefix, '_hfx.nc'], 'clobber');
 
 netcdf.putAtt(nc, netcdf.getConstant('NC_GLOBAL'), 'title', 'FVCOM Forcing File')
-netcdf.putAtt(nc, netcdf.getConstant('NC_GLOBAL'), 'institution', 'Plymouth Marine Laboratory')
+netcdf.putAtt(nc, netcdf.getConstant('NC_GLOBAL'), 'institution', 'The University of Tokyo')
 netcdf.putAtt(nc, netcdf.getConstant('NC_GLOBAL'), 'source', 'FVCOM grid (unstructured) surface forcing')
 netcdf.putAtt(nc, netcdf.getConstant('NC_GLOBAL'), 'history', sprintf('File created with %s from the MATLAB fvcom-toolbox', subname))
 netcdf.putAtt(nc, netcdf.getConstant('NC_GLOBAL'), 'references', 'http://fvcom.smast.umassd.edu, http://codfish.smast.umassd.edu')
 netcdf.putAtt(nc, netcdf.getConstant('NC_GLOBAL'), 'Conventions', 'CF-1.0')
 netcdf.putAtt(nc, netcdf.getConstant('NC_GLOBAL'), 'CoordinateSystem', Mobj.nativeCoords)
-netcdf.putAtt(nc, netcdf.getConstant('NC_GLOBAL'), 'CoordinateProjection', 'init=epsg:4326') % WGS84?
+netcdf.putAtt(nc, netcdf.getConstant('NC_GLOBAL'), 'CoordinateProjection', 'init=WGS84') % WGS84?
 
 % Dimensions
 nele_dimid=netcdf.defDim(nc, 'nele', nElems);
