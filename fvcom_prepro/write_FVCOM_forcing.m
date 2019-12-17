@@ -312,18 +312,18 @@ for i=1:length(suffixes)
                 if strcmpi(suffixes{i}, '_wnd') || ~multi_out
                     % wind components (assume we have v if we have u)
                     % On the elements
-                    u10_varid=netcdf.defVar(nc,'U10','NC_FLOAT',[nele_dimid, time_dimid]);
-                    netcdf.putAtt(nc,u10_varid,'long_name','Eastward Wind Speed');
-                    netcdf.putAtt(nc,u10_varid,'units','m/s');
-                    netcdf.putAtt(nc,u10_varid,'grid','fvcom_grid');
-                    netcdf.putAtt(nc,u10_varid,'coordinates',coordString);
-                    netcdf.putAtt(nc,u10_varid,'type','data');
-                    v10_varid=netcdf.defVar(nc,'V10','NC_FLOAT',[nele_dimid, time_dimid]);
-                    netcdf.putAtt(nc,v10_varid,'long_name','Northward Wind Speed');
-                    netcdf.putAtt(nc,v10_varid,'units','m/s');
-                    netcdf.putAtt(nc,v10_varid,'grid','fvcom_grid');
-                    netcdf.putAtt(nc,v10_varid,'coordinates',coordString);
-                    netcdf.putAtt(nc,v10_varid,'type','data');
+                    % u10_varid=netcdf.defVar(nc,'U10','NC_FLOAT',[nele_dimid, time_dimid]);
+                    % netcdf.putAtt(nc,u10_varid,'long_name','Eastward Wind Speed');
+                    % netcdf.putAtt(nc,u10_varid,'units','m/s');
+                    % netcdf.putAtt(nc,u10_varid,'grid','fvcom_grid');
+                    % netcdf.putAtt(nc,u10_varid,'coordinates',coordString);
+                    % netcdf.putAtt(nc,u10_varid,'type','data');
+                    % v10_varid=netcdf.defVar(nc,'V10','NC_FLOAT',[nele_dimid, time_dimid]);
+                    % netcdf.putAtt(nc,v10_varid,'long_name','Northward Wind Speed');
+                    % netcdf.putAtt(nc,v10_varid,'units','m/s');
+                    % netcdf.putAtt(nc,v10_varid,'grid','fvcom_grid');
+                    % netcdf.putAtt(nc,v10_varid,'coordinates',coordString);
+                    % netcdf.putAtt(nc,v10_varid,'type','data');
 
                     uwind_varid=netcdf.defVar(nc,'uwind_speed','NC_FLOAT',[nele_dimid, time_dimid]);
                     netcdf.putAtt(nc,uwind_varid,'long_name','Eastward Wind Speed');
@@ -340,21 +340,25 @@ for i=1:length(suffixes)
 
                     % Only on the elements (both U10/V10 and uwind_speed
                     % and vwind_speed).
-                    used_varids = [used_varids, {'u10_varid', 'v10_varid', 'uwind_varid', 'vwind_varid'}];
+                    % used_varids = [used_varids, {'u10_varid', 'v10_varid', 'uwind_varid', 'vwind_varid'}];
+                    used_varids = [used_varids, {'uwind_varid', 'vwind_varid'}];
                     % We should only have one of {u,v}wnd or {u,v}10 as the
                     % field name and used_fnames needs to reflect that.
                     if isfield(data, 'uwnd') && ~isfield(data, 'u10')
                         % We have uwnd and vwnd variants (no u10/v10).
-                        used_fnames = [used_fnames, {'uwnd', 'vwnd', 'uwnd', 'vwnd'}];
+                        % used_fnames = [used_fnames, {'uwnd', 'vwnd', 'uwnd', 'vwnd'}];
+                        used_fnames = [used_fnames, {'uwnd', 'vwnd'}];
                     elseif isfield(data, 'u10') && ~isfield(data, 'uwnd')
                         % We have only u10 and v10 variants (no uwnd/vwnd)
-                        used_fnames = [used_fnames, {'u10', 'v10', 'u10', 'v10'}];
+                        % used_fnames = [used_fnames, {'u10', 'v10', 'u10', 'v10'}];
+                        used_fnames = [used_fnames, {'u10', 'v10'}];
                     elseif isfield(data, 'u10') && isfield(data, 'uwnd')
                         error('Supply only one set of wind fields: ''uwnd'' and ''vwnd'' or ''u10'' and ''v10''.')
                     else
                         error('Unrecognised wind field names.')
                     end
-                    used_dims = [used_dims, {'nElems', 'nElems', 'nElems', 'nElems'}];
+                    % used_dims = [used_dims, {'nElems', 'nElems', 'nElems', 'nElems'}];
+                    used_dims = [used_dims, {'nElems', 'nElems'}];
                 end
 
             case {'vwnd', 'v10'}
@@ -434,33 +438,33 @@ for i=1:length(suffixes)
                     used_dims = [used_dims, 'nNodes'];
                 end
 
-            case 'nswrs'
-                if strcmpi(suffixes{i}, '_hfx') || ~multi_out
-                    % Net shortwave radiation
-                    nswrs_varid=netcdf.defVar(nc,'short_wave','NC_FLOAT',[node_dimid, time_dimid]);
-                    netcdf.putAtt(nc,nswrs_varid,'long_name','Short Wave Radiation');
-                    netcdf.putAtt(nc,nswrs_varid,'units','W m-2');
-                    netcdf.putAtt(nc,nswrs_varid,'grid','fvcom_grid');
-                    netcdf.putAtt(nc,nswrs_varid,'coordinates',coordString);
-                    netcdf.putAtt(nc,nswrs_varid,'type','data');
-                    used_varids = [used_varids, 'nswrs_varid'];
-                    used_fnames = [used_fnames, fnames{vv}];
-                    used_dims = [used_dims, 'nNodes'];
-                end
-            
-            case 'nlwrs'
-                if strcmpi(suffixes{i}, '_hfx') || ~multi_out
-                    % Net longwave radiation
-                    nlwrs_varid=netcdf.defVar(nc,'long_wave','NC_FLOAT',[node_dimid, time_dimid]);
-                    netcdf.putAtt(nc,nlwrs_varid,'long_name','Long Wave Radiation');
-                    netcdf.putAtt(nc,nlwrs_varid,'units','W m-2');
-                    netcdf.putAtt(nc,nlwrs_varid,'grid','fvcom_grid');
-                    netcdf.putAtt(nc,nlwrs_varid,'coordinates',coordString);
-                    netcdf.putAtt(nc,nlwrs_varid,'type','data');
-                    used_varids = [used_varids, 'nlwrs_varid'];
-                    used_fnames = [used_fnames, fnames{vv}];
-                    used_dims = [used_dims, 'nNodes'];
-                end
+            % case 'nswrs'
+            %     if strcmpi(suffixes{i}, '_hfx') || ~multi_out
+            %         % Net shortwave radiation
+            %         nswrs_varid=netcdf.defVar(nc,'short_wave','NC_FLOAT',[node_dimid, time_dimid]);
+            %         netcdf.putAtt(nc,nswrs_varid,'long_name','Short Wave Radiation');
+            %         netcdf.putAtt(nc,nswrs_varid,'units','W m-2');
+            %         netcdf.putAtt(nc,nswrs_varid,'grid','fvcom_grid');
+            %         netcdf.putAtt(nc,nswrs_varid,'coordinates',coordString);
+            %         netcdf.putAtt(nc,nswrs_varid,'type','data');
+            %         used_varids = [used_varids, 'nswrs_varid'];
+            %         used_fnames = [used_fnames, fnames{vv}];
+            %         used_dims = [used_dims, 'nNodes'];
+            %     end
+
+            % case 'nlwrs'
+            %     if strcmpi(suffixes{i}, '_hfx') || ~multi_out
+            %         % Net longwave radiation
+            %         nlwrs_varid=netcdf.defVar(nc,'long_wave','NC_FLOAT',[node_dimid, time_dimid]);
+            %         netcdf.putAtt(nc,nlwrs_varid,'long_name','Long Wave Radiation');
+            %         netcdf.putAtt(nc,nlwrs_varid,'units','W m-2');
+            %         netcdf.putAtt(nc,nlwrs_varid,'grid','fvcom_grid');
+            %         netcdf.putAtt(nc,nlwrs_varid,'coordinates',coordString);
+            %         netcdf.putAtt(nc,nlwrs_varid,'type','data');
+            %         used_varids = [used_varids, 'nlwrs_varid'];
+            %         used_fnames = [used_fnames, fnames{vv}];
+            %         used_dims = [used_dims, 'nNodes'];
+            %     end
 
             case {'air', 'tmp2m'}
                 if strcmpi(suffixes{i}, '_hfx') || ~multi_out
@@ -548,7 +552,7 @@ for i=1:length(suffixes)
             %         used_dims = [used_dims, 'nNodes'];
             %     end
 
-            case {'shtfl', 'lhtfl', 'nshf', 'nlwrs', 'nswrs', 'nswsfc'}
+            case {'shtfl', 'lhtfl', 'nshf', 'nlwrs'}%, 'nswrs', 'nswsfc'}
                 % We can't trigger on nlwrs and nswrs here because they're
                 % the triggers for the net longwave and shortwave variables
                 % above. Instead, we need to use the latent heat flux
@@ -669,9 +673,11 @@ for i=1:length(suffixes)
                 % either of the other fluxes (short/long wave) which we
                 % need to dump. Do that here.
                 if strcmpi(used_dims{ff}, 'nNodes')
-                    eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],data.',used_fnames{ff},'.node);'])
+                    % eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],data.',used_fnames{ff},'.node);'])
+                    eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],full(data.',used_fnames{ff},'.node));'])
                 else
-                    eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],data.',used_fnames{ff},'.data);'])
+                    % eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],data.',used_fnames{ff},'.data);'])
+                    eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],full(data.',used_fnames{ff},'.data));'])
                 end
             else
                 % We haven't got the precomputed net surface heat flux but
@@ -688,15 +694,15 @@ for i=1:length(suffixes)
             % nshf variable 1 to stop the net surface heat flux variable
             % being overwritten above.
             hf_done = 4;
-            netcdf.putVar(nc, nhf_varid, [0, 0], [nNodes, ntimes], data.nshf.node)
+            netcdf.putVar(nc, nhf_varid, [0, 0], [nNodes, ntimes], full(data.nshf.node))
         else
             % One of the other data sets for which we can simply dump the
             % existing array without waiting for other data.
             if strcmpi(used_dims{ff}, 'nNodes')
-                eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],data.',used_fnames{ff},'.node);'])
+                eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],full(data.',used_fnames{ff},'.node));'])
             else
                 try
-                    eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],data.',used_fnames{ff},'.data);'])
+                    eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],full(data.',used_fnames{ff},'.data));'])
                     wnd_done = wnd_done + 1;
                 catch err
                     fprintf('%s', err.message)
