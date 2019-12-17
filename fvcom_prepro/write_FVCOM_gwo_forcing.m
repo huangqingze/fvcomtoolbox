@@ -347,21 +347,25 @@ for i=1:length(suffixes)
 
                     % Only on the elements (both U10/V10 and uwind_speed
                     % and vwind_speed).
-                    used_varids = [used_varids, {'u10_varid', 'v10_varid', 'uwind_varid', 'vwind_varid'}];
+                    % used_varids = [used_varids, {'u10_varid', 'v10_varid', 'uwind_varid', 'vwind_varid'}];
+                    used_varids = [used_varids, {'uwind_varid', 'vwind_varid'}];
                     % We should only have one of {u,v}wnd or {u,v}10 as the
                     % field name and used_fnames needs to reflect that.
                     if isfield(data, 'uwnd') && ~isfield(data, 'u10')
                         % We have uwnd and vwnd variants (no u10/v10).
-                        used_fnames = [used_fnames, {'uwnd', 'vwnd', 'uwnd', 'vwnd'}];
+                        % used_fnames = [used_fnames, {'uwnd', 'vwnd', 'uwnd', 'vwnd'}];
+                        used_fnames = [used_fnames, {'uwnd', 'vwnd'}];
                     elseif isfield(data, 'u10') && ~isfield(data, 'uwnd')
                         % We have only u10 and v10 variants (no uwnd/vwnd)
-                        used_fnames = [used_fnames, {'u10', 'v10', 'u10', 'v10'}];
+                        % used_fnames = [used_fnames, {'u10', 'v10', 'u10', 'v10'}];
+                        used_fnames = [used_fnames, {'u10', 'v10'}];
                     elseif isfield(data, 'u10') && isfield(data, 'uwnd')
                         error('Supply only one set of wind fields: ''uwnd'' and ''vwnd'' or ''u10'' and ''v10''.')
                     else
                         error('Unrecognised wind field names.')
                     end
-                    used_dims = [used_dims, {'nElems', 'nElems', 'nElems', 'nElems'}];
+                    % used_dims = [used_dims, {'nElems', 'nElems', 'nElems', 'nElems'}];
+                    used_dims = [used_dims, {'nElems', 'nElems'}];
                 end
 
             case {'vwnd', 'v10'}
@@ -397,19 +401,19 @@ for i=1:length(suffixes)
             %         used_dims = [used_dims, 'nNodes'];
             %     end
 
-%             case {'shum'}
-%                 if strcmpi(suffixes{i}, '_specific_humidity') || ~multi_out
-%                     % Specific humidity
-%                     slp_varid=netcdf.defVar(nc,'specific_humidity','NC_FLOAT',[node_dimid, time_dimid]);
-%                     netcdf.putAtt(nc,slp_varid,'long_name','Specific humidity');
-%                     netcdf.putAtt(nc,slp_varid,'units','Kg kg^-1');
-%                     netcdf.putAtt(nc,slp_varid,'grid','fvcom_grid');
-%                     netcdf.putAtt(nc,slp_varid,'coordinates',coordString);
-%                     netcdf.putAtt(nc,slp_varid,'type','data');
-%                     used_varids = [used_varids, 'q2m_varid'];
-%                     used_fnames = [used_fnames, fnames{vv}];
-%                     used_dims = [used_dims, 'nNodes'];
-%                 end
+            % case {'shum'}
+            %     if strcmpi(suffixes{i}, '_specific_humidity') || ~multi_out
+            %         % Specific humidity
+            %         slp_varid=netcdf.defVar(nc,'specific_humidity','NC_FLOAT',[node_dimid, time_dimid]);
+            %         netcdf.putAtt(nc,slp_varid,'long_name','Specific humidity');
+            %         netcdf.putAtt(nc,slp_varid,'units','Kg kg^-1');
+            %         netcdf.putAtt(nc,slp_varid,'grid','fvcom_grid');
+            %         netcdf.putAtt(nc,slp_varid,'coordinates',coordString);
+            %         netcdf.putAtt(nc,slp_varid,'type','data');
+            %         used_varids = [used_varids, 'q2m_varid'];
+            %         used_fnames = [used_fnames, fnames{vv}];
+            %         used_dims = [used_dims, 'nNodes'];
+            %     end
 
             case {'Et', 'evap'}
                 if strcmpi(suffixes{i}, '_evap') || ~multi_out
@@ -555,7 +559,7 @@ for i=1:length(suffixes)
 % %                     used_dims = [used_dims, 'nNodes'];
 % %                 end
 
-            case {'shtfl', 'lhtfl', 'nshf', 'nlwrs', 'nswrs', 'nswsfc'}
+            case {'shtfl', 'lhtfl', 'nshf', 'nlwrs'}%, 'nswrs', 'nswsfc'}
                 % We can't trigger on nlwrs and nswrs here because they're
                 % the triggers for the net longwave and shortwave variables
                 % above. Instead, we need to use the latent heat flux
