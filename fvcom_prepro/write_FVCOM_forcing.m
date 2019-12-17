@@ -376,33 +376,33 @@ for i=1:length(suffixes)
                     used_dims = [used_dims, 'nNodes'];
                 end
 
-            % case 'lcc'
-            %     if strcmpi(suffixes{i}, '_low_cloud_cover') || ~multi_out
-            %         % Low cloud cover
-            %         slp_varid=netcdf.defVar(nc,'low_cloud_cover','NC_FLOAT',[node_dimid, time_dimid]);
-            %         netcdf.putAtt(nc,slp_varid,'long_name','Low cloud cover');
-            %         netcdf.putAtt(nc,slp_varid,'units','Fraction');
-            %         netcdf.putAtt(nc,slp_varid,'grid','fvcom_grid');
-            %         netcdf.putAtt(nc,slp_varid,'coordinates',coordString);
-            %         netcdf.putAtt(nc,slp_varid,'type','data');
-            %         used_varids = [used_varids, 'lcc_varid'];
-            %         used_fnames = [used_fnames, fnames{vv}];
-            %         used_dims = [used_dims, 'nNodes'];
-            %     end
+            case 'lcc'
+                if strcmpi(suffixes{i}, '_low_cloud_cover') || ~multi_out
+                    % Low cloud cover
+                    slp_varid=netcdf.defVar(nc,'low_cloud_cover','NC_FLOAT',[node_dimid, time_dimid]);
+                    netcdf.putAtt(nc,slp_varid,'long_name','Low cloud cover');
+                    netcdf.putAtt(nc,slp_varid,'units','Fraction');
+                    netcdf.putAtt(nc,slp_varid,'grid','fvcom_grid');
+                    netcdf.putAtt(nc,slp_varid,'coordinates',coordString);
+                    netcdf.putAtt(nc,slp_varid,'type','data');
+                    used_varids = [used_varids, 'lcc_varid'];
+                    used_fnames = [used_fnames, fnames{vv}];
+                    used_dims = [used_dims, 'nNodes'];
+                end
 
-%             case {'shum'}
-%                 if strcmpi(suffixes{i}, '_specific_humidity') || ~multi_out
-%                     % Specific humidity
-%                     slp_varid=netcdf.defVar(nc,'specific_humidity','NC_FLOAT',[node_dimid, time_dimid]);
-%                     netcdf.putAtt(nc,slp_varid,'long_name','Specific humidity');
-%                     netcdf.putAtt(nc,slp_varid,'units','Kg kg^-1');
-%                     netcdf.putAtt(nc,slp_varid,'grid','fvcom_grid');
-%                     netcdf.putAtt(nc,slp_varid,'coordinates',coordString);
-%                     netcdf.putAtt(nc,slp_varid,'type','data');
-%                     used_varids = [used_varids, 'q2m_varid'];
-%                     used_fnames = [used_fnames, fnames{vv}];
-%                     used_dims = [used_dims, 'nNodes'];
-%                 end
+            case {'shum'}
+                if strcmpi(suffixes{i}, '_specific_humidity') || ~multi_out
+                    % Specific humidity
+                    slp_varid=netcdf.defVar(nc,'specific_humidity','NC_FLOAT',[node_dimid, time_dimid]);
+                    netcdf.putAtt(nc,slp_varid,'long_name','Specific humidity');
+                    netcdf.putAtt(nc,slp_varid,'units','Kg kg^-1');
+                    netcdf.putAtt(nc,slp_varid,'grid','fvcom_grid');
+                    netcdf.putAtt(nc,slp_varid,'coordinates',coordString);
+                    netcdf.putAtt(nc,slp_varid,'type','data');
+                    used_varids = [used_varids, 'q2m_varid'];
+                    used_fnames = [used_fnames, fnames{vv}];
+                    used_dims = [used_dims, 'nNodes'];
+                end
 
             case {'Et', 'evap'}
                 if strcmpi(suffixes{i}, '_evap') || ~multi_out
@@ -434,33 +434,33 @@ for i=1:length(suffixes)
                     used_dims = [used_dims, 'nNodes'];
                 end
 
-%             case 'nswrs'
-%                 if strcmpi(suffixes{i}, '_hfx') || ~multi_out
-%                     % Net shortwave radiation
-%                     nswrs_varid=netcdf.defVar(nc,'short_wave','NC_FLOAT',[node_dimid, time_dimid]);
-%                     netcdf.putAtt(nc,nswrs_varid,'long_name','Short Wave Radiation');
-%                     netcdf.putAtt(nc,nswrs_varid,'units','W m-2');
-%                     netcdf.putAtt(nc,nswrs_varid,'grid','fvcom_grid');
-%                     netcdf.putAtt(nc,nswrs_varid,'coordinates',coordString);
-%                     netcdf.putAtt(nc,nswrs_varid,'type','data');
-%                     used_varids = [used_varids, 'nswrs_varid'];
-%                     used_fnames = [used_fnames, fnames{vv}];
-%                     used_dims = [used_dims, 'nNodes'];
-%                 end
-%             
-%             case 'nlwrs'
-%                 if strcmpi(suffixes{i}, '_hfx') || ~multi_out
-%                     % Net longwave radiation
-%                     nlwrs_varid=netcdf.defVar(nc,'long_wave','NC_FLOAT',[node_dimid, time_dimid]);
-%                     netcdf.putAtt(nc,nlwrs_varid,'long_name','Long Wave Radiation');
-%                     netcdf.putAtt(nc,nlwrs_varid,'units','W m-2');
-%                     netcdf.putAtt(nc,nlwrs_varid,'grid','fvcom_grid');
-%                     netcdf.putAtt(nc,nlwrs_varid,'coordinates',coordString);
-%                     netcdf.putAtt(nc,nlwrs_varid,'type','data');
-%                     used_varids = [used_varids, 'nlwrs_varid'];
-%                     used_fnames = [used_fnames, fnames{vv}];
-%                     used_dims = [used_dims, 'nNodes'];
-%                 end
+            case 'nswrs'
+                if strcmpi(suffixes{i}, '_hfx') || ~multi_out
+                    % Net shortwave radiation
+                    nswrs_varid=netcdf.defVar(nc,'short_wave','NC_FLOAT',[node_dimid, time_dimid]);
+                    netcdf.putAtt(nc,nswrs_varid,'long_name','Short Wave Radiation');
+                    netcdf.putAtt(nc,nswrs_varid,'units','W m-2');
+                    netcdf.putAtt(nc,nswrs_varid,'grid','fvcom_grid');
+                    netcdf.putAtt(nc,nswrs_varid,'coordinates',coordString);
+                    netcdf.putAtt(nc,nswrs_varid,'type','data');
+                    used_varids = [used_varids, 'nswrs_varid'];
+                    used_fnames = [used_fnames, fnames{vv}];
+                    used_dims = [used_dims, 'nNodes'];
+                end
+            
+            case 'nlwrs'
+                if strcmpi(suffixes{i}, '_hfx') || ~multi_out
+                    % Net longwave radiation
+                    nlwrs_varid=netcdf.defVar(nc,'long_wave','NC_FLOAT',[node_dimid, time_dimid]);
+                    netcdf.putAtt(nc,nlwrs_varid,'long_name','Long Wave Radiation');
+                    netcdf.putAtt(nc,nlwrs_varid,'units','W m-2');
+                    netcdf.putAtt(nc,nlwrs_varid,'grid','fvcom_grid');
+                    netcdf.putAtt(nc,nlwrs_varid,'coordinates',coordString);
+                    netcdf.putAtt(nc,nlwrs_varid,'type','data');
+                    used_varids = [used_varids, 'nlwrs_varid'];
+                    used_fnames = [used_fnames, fnames{vv}];
+                    used_dims = [used_dims, 'nNodes'];
+                end
 
             case {'air', 'tmp2m'}
                 if strcmpi(suffixes{i}, '_hfx') || ~multi_out
@@ -490,35 +490,6 @@ for i=1:length(suffixes)
                     used_dims = [used_dims, 'nNodes'];
                 end
 
-%             case {'dswrf', 'dswsfc'}
-%                 if strcmpi(suffixes{i}, '_hfx') || ~multi_out
-%                     % Downward shortwave radiation
-%                     dswrf_varid = netcdf.defVar(nc, 'short_wave', 'NC_FLOAT', [node_dimid, time_dimid]);
-%                     netcdf.putAtt(nc, dswrf_varid, 'long_name', 'Downward solar shortwave radiation flux');
-%                     netcdf.putAtt(nc, dswrf_varid, 'units', 'Watts meter-2');
-%                     netcdf.putAtt(nc, dswrf_varid, 'grid', 'fvcom_grid');
-%                     netcdf.putAtt(nc, dswrf_varid, 'coordinates', coordString);
-%                     netcdf.putAtt(nc, dswrf_varid, 'type', 'data');
-%                     used_varids = [used_varids, 'dswrf_varid'];
-%                     used_fnames = [used_fnames, fnames{vv}];
-%                     used_dims = [used_dims, 'nNodes'];
-%                 end
-
-%             case {'dlwrf', 'dlwsfc'}
-%                 if strcmpi(suffixes{i}, '_hfx') || ~multi_out
-%                     % Downward longwave radiation
-%                     dlwrf_varid = netcdf.defVar(nc, 'long_wave', 'NC_FLOAT', [node_dimid, time_dimid]);
-%                     netcdf.putAtt(nc, dlwrf_varid, 'long_name', 'Downward solar longwave radiation flux');
-%                     netcdf.putAtt(nc, dlwrf_varid, 'units', 'Watts meter-2');
-%                     netcdf.putAtt(nc, dlwrf_varid, 'grid', 'fvcom_grid');
-%                     netcdf.putAtt(nc, dlwrf_varid, 'coordinates', coordString);
-%                     netcdf.putAtt(nc, dlwrf_varid, 'type', 'data');
-%                     used_varids = [used_varids, 'dlwrf_varid'];
-%                     used_fnames = [used_fnames, fnames{vv}];
-%                     used_dims = [used_dims, 'nNodes'];
-%                 end
-
-            % Downward solar wave radation
             case {'dswrf', 'dswsfc'}
                 if strcmpi(suffixes{i}, '_hfx') || ~multi_out
                     % Downward shortwave radiation
@@ -533,7 +504,6 @@ for i=1:length(suffixes)
                     used_dims = [used_dims, 'nNodes'];
                 end
 
-            % Downward long wave radation
             case {'dlwrf', 'dlwsfc'}
                 if strcmpi(suffixes{i}, '_hfx') || ~multi_out
                     % Downward longwave radiation
@@ -547,6 +517,36 @@ for i=1:length(suffixes)
                     used_fnames = [used_fnames, fnames{vv}];
                     used_dims = [used_dims, 'nNodes'];
                 end
+
+            % % Downward solar wave radation
+            % case {'dswrf', 'dswsfc'}
+            %     if strcmpi(suffixes{i}, '_hfx') || ~multi_out
+            %         % Downward shortwave radiation
+            %         dswrf_varid = netcdf.defVar(nc, 'short_wave', 'NC_FLOAT', [node_dimid, time_dimid]);
+            %         netcdf.putAtt(nc, dswrf_varid, 'long_name', 'Downward solar shortwave radiation flux');
+            %         netcdf.putAtt(nc, dswrf_varid, 'units', 'Watts meter-2');
+            %         netcdf.putAtt(nc, dswrf_varid, 'grid', 'fvcom_grid');
+            %         netcdf.putAtt(nc, dswrf_varid, 'coordinates', coordString);
+            %         netcdf.putAtt(nc, dswrf_varid, 'type', 'data');
+            %         used_varids = [used_varids, 'dswrf_varid'];
+            %         used_fnames = [used_fnames, fnames{vv}];
+            %         used_dims = [used_dims, 'nNodes'];
+            %     end
+            % 
+            % % Downward long wave radation
+            % case {'dlwrf', 'dlwsfc'}
+            %     if strcmpi(suffixes{i}, '_hfx') || ~multi_out
+            %         % Downward longwave radiation
+            %         dlwrf_varid = netcdf.defVar(nc, 'long_wave', 'NC_FLOAT', [node_dimid, time_dimid]);
+            %         netcdf.putAtt(nc, dlwrf_varid, 'long_name', 'Downward solar longwave radiation flux');
+            %         netcdf.putAtt(nc, dlwrf_varid, 'units', 'Watts meter-2');
+            %         netcdf.putAtt(nc, dlwrf_varid, 'grid', 'fvcom_grid');
+            %         netcdf.putAtt(nc, dlwrf_varid, 'coordinates', coordString);
+            %         netcdf.putAtt(nc, dlwrf_varid, 'type', 'data');
+            %         used_varids = [used_varids, 'dlwrf_varid'];
+            %         used_fnames = [used_fnames, fnames{vv}];
+            %         used_dims = [used_dims, 'nNodes'];
+            %     end
 
             case {'shtfl', 'lhtfl', 'nshf', 'nlwrs', 'nswrs', 'nswsfc'}
                 % We can't trigger on nlwrs and nswrs here because they're
