@@ -212,20 +212,20 @@ netcdf.putVar(nc, airt_varid, data.air.node);
 netcdf.putVar(nc, rhum_varid, data.rhum.node);
 try
     % NCEP
-    netcdf.putVar(nc, dlwrf_varid, data.dlwrf.node);
+    netcdf.putVar(nc, dlwrf_varid, full(data.dlwrf.node));
 catch
     % Met Office Unified Model
     netcdf.putVar(nc, dlwrf_varid, data.nlwrf.node);
 end
 try
     % NCEP
-    netcdf.putVar(nc, dswrf_varid, data.dswrf.node);
+    netcdf.putVar(nc, dswrf_varid, full(data.dswrf.node));
 catch
     % Met Office Unified Model
     netcdf.putVar(nc, dswrf_varid, data.nswrf.node);
 end
 try % work with both slp and pres data.
-    netcdf.putVar(nc, slp_varid, data.slp.node);
+    netcdf.putVar(nc, slp_varid, full(data.slp.node));
 catch
     netcdf.putVar(nc, slp_varid, data.pres.node);
 end
