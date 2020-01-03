@@ -487,19 +487,19 @@ for i=1:length(suffixes)
                     used_dims = [used_dims, 'nNodes'];
                 end
 
-%             case {'rhum'}
-%                 if strcmpi(suffixes{i}, '_hfx') || ~multi_out
-%                     % Relative humidity
-%                     rhum_varid = netcdf.defVar(nc, 'relative_humidity', 'NC_FLOAT', [node_dimid, time_dimid]);
-%                     netcdf.putAtt(nc, rhum_varid, 'long_name', 'surface air relative humidity');
-%                     netcdf.putAtt(nc, rhum_varid, 'units', 'percentage');
-%                     netcdf.putAtt(nc, rhum_varid, 'grid', 'fvcom_grid');
-%                     netcdf.putAtt(nc, rhum_varid, 'coordinates', coordString);
-%                     netcdf.putAtt(nc, rhum_varid, 'type', 'data');
-%                     used_varids = [used_varids, 'rhum_varid'];
-%                     used_fnames = [used_fnames, fnames{vv}];
-%                     used_dims = [used_dims, 'nNodes'];
-%                 end
+            case {'rhum'}
+                if strcmpi(suffixes{i}, '_hfx') || ~multi_out
+                    % Relative humidity
+                    rhum_varid = netcdf.defVar(nc, 'relative_humidity', 'NC_FLOAT', [node_dimid, time_dimid]);
+                    netcdf.putAtt(nc, rhum_varid, 'long_name', 'surface air relative humidity');
+                    netcdf.putAtt(nc, rhum_varid, 'units', 'percentage');
+                    netcdf.putAtt(nc, rhum_varid, 'grid', 'fvcom_grid');
+                    netcdf.putAtt(nc, rhum_varid, 'coordinates', coordString);
+                    netcdf.putAtt(nc, rhum_varid, 'type', 'data');
+                    used_varids = [used_varids, 'rhum_varid'];
+                    used_fnames = [used_fnames, fnames{vv}];
+                    used_dims = [used_dims, 'nNodes'];
+                end
 
 % %             case {'dswrf', 'dswsfc'}
 % %                 if strcmpi(suffixes{i}, '_hfx') || ~multi_out
@@ -680,10 +680,10 @@ for i=1:length(suffixes)
                 if time_dependent
                     start_row = 1:nNodes;
                     for ii = 1:length(start_row)
-                        netcdf.putVar(nc,nhf_varid,[start_row(ii)-1,0],[1,ntimes],hf);
+                        netcdf.putVar(nc,nhf_varid,[start_row(ii)-1,0],[1,ntimes],full(hf));
                     end
                 else
-                    netcdf.putVar(nc,nhf_varid,[0,0],[nNodes,ntimes],hf);
+                    netcdf.putVar(nc,nhf_varid,[0,0],[nNodes,ntimes],full(hf));
                 end
                 clear hf;
             elseif strcmpi(used_fnames{ff}, 'nswrs') || strcmpi(used_fnames{ff}, 'nlwrs')
@@ -692,23 +692,23 @@ for i=1:length(suffixes)
                 % need to dump. Do that here.
                 if strcmpi(used_dims{ff}, 'nNodes')
                     if time_dependent
-                        % eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[1,ntimes],data.',used_fnames{ff},'.node);'])
+                        % eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[1,ntimes],full(data.',used_fnames{ff},'.node));'])
                         start_row = 1:nNodes;
                         for ii = 1:length(start_row)
-                            eval(['netcdf.putVar(nc,',used_varids{ff},',[',num2str(start_row(ii)-1),',0],[1,ntimes],data.',used_fnames{ff},'.node);'])
+                            eval(['netcdf.putVar(nc,',used_varids{ff},',[',num2str(start_row(ii)-1),',0],[1,ntimes],full(data.',used_fnames{ff},'.node));'])
                         end
                     else
-                        eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],data.',used_fnames{ff},'.node);'])
+                        eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],full(data.',used_fnames{ff},'.node));'])
                     end
                 else
                     if time_dependent
-                        % eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[1,ntimes],data.',used_fnames{ff},'.data);'])
+                        % eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[1,ntimes],full(data.',used_fnames{ff},'.data));'])
                         start_row = 1:nElems;
                         for ii = 1:length(start_row)
-                            eval(['netcdf.putVar(nc,',used_varids{ff},',[',num2str(start_row(ii)-1),',0],[1,ntimes],data.',used_fnames{ff},'.data);'])
+                            eval(['netcdf.putVar(nc,',used_varids{ff},',[',num2str(start_row(ii)-1),',0],[1,ntimes],full(data.',used_fnames{ff},'.data));'])
                         end
                     else
-                        eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],data.',used_fnames{ff},'.data);'])
+                        eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],full(data.',used_fnames{ff},'.data));'])
                     end
                 end
             else
@@ -727,37 +727,37 @@ for i=1:length(suffixes)
             % being overwritten above.
             hf_done = 4;
             if time_dependent
-                % netcdf.putVar(nc, nhf_varid, [0, 0], [1, ntimes], data.nshf.node)
+                % netcdf.putVar(nc, nhf_varid, [0, 0], [1, ntimes],full(data.nshf.node))
                 start_row = 1:nNodes;
                 for ii = 1:length(start_row)
-                    netcdf.putVar(nc, nhf_varid, [start_row(ii)-1, 0], [1, ntimes], data.nshf.node)
+                    netcdf.putVar(nc, nhf_varid, [start_row(ii)-1, 0], [1, ntimes], full(data.nshf.node))
                 end
             else
-                netcdf.putVar(nc, nhf_varid, [0, 0], [nNodes, ntimes], data.nshf.node)
+                netcdf.putVar(nc, nhf_varid, [0, 0], [nNodes, ntimes], full(data.nshf.node))
             end
         else
             % One of the other data sets for which we can simply dump the
             % existing array without waiting for other data.
             if strcmpi(used_dims{ff}, 'nNodes')
                 if time_dependent
-                    % eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[1,ntimes],data.',used_fnames{ff},'.node);'])
+                    % eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[1,ntimes],full(data.',used_fnames{ff},'.node));'])
                     start_row = 1:nNodes;
                     for ii = 1:length(start_row)
-                        eval(['netcdf.putVar(nc,',used_varids{ff},',[',num2str(start_row(ii)-1),',0],[1,ntimes],data.',used_fnames{ff},'.node);'])
+                        eval(['netcdf.putVar(nc,',used_varids{ff},',[',num2str(start_row(ii)-1),',0],[1,ntimes],full(data.',used_fnames{ff},'.node));'])
                     end
                 else
-                    eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],data.',used_fnames{ff},'.node);'])
+                    eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],full(data.',used_fnames{ff},'.node));'])
                 end
             else
                 try
                     if time_dependent
-                        % eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[1,ntimes],data.',used_fnames{ff},'.data);'])
+                        % eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[1,ntimes],full(data.',used_fnames{ff},'.data));'])
                         start_row = 1:nElems;
                         for ii = 1:length(start_row)
-                            eval(['netcdf.putVar(nc,',used_varids{ff},',[',num2str(start_row(ii)-1),',0],[1,ntimes],data.',used_fnames{ff},'.data);'])
+                            eval(['netcdf.putVar(nc,',used_varids{ff},',[',num2str(start_row(ii)-1),',0],[1,ntimes],full(data.',used_fnames{ff},'.data));'])
                         end
                     else
-                        eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],data.',used_fnames{ff},'.data);'])
+                        eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],full(data.',used_fnames{ff},'.data));'])
                     end
                     wnd_done = wnd_done + 1;
                 catch err
