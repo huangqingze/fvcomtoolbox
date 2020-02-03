@@ -36,6 +36,12 @@ for i=1:2:length(varargin)-1
             riv_x = riv_xy(:,1);
             riv_y = riv_xy(:,2);
             riv = true;
+        case 'tim'
+            time_str = varargin{i+1};
+            showtime = true;
+        case 'dye'
+            dye_inf = varargin{i+1};
+            dye_hcb = true;
         otherwise
             error(['Can''t understand property:' char(varargin{i+1})]);
     end
@@ -78,11 +84,21 @@ xlim(ax,[min(x)-(max(x)-min(x))*0.2 max(x)+(max(x)-min(x))*0.2]);
 ylim(ax,[min(y)-(max(y)-min(y))*0.1 max(y)+(max(y)-min(y))*0.1]);
 box(ax,'on');
 
+if showtime
+    % Create time str
+    text(min(x)-(max(x)-min(x))*0.10,min(y)-(max(y)-min(y))*0.05,time_str,'FontSize',fs);
+end
+
 % Set the remaining axes properties
 set(ax,'DataAspectRatio',[1.2 1 1],'PlotBoxAspectRatio',...
     [1 1 1],'FontSize',fs);
 set(gcf,'position',[Num*10,Num*10,800,600])
+
 % Create colorbar
 hcb = colorbar('peer',ax);
-set(get(hcb,'label'),'string','Water depth (m)','FontSize',fs);
-
+if dye_hcb
+    set(get(hcb,'label'),'string',dye_inf{1,1},'FontSize',fs);
+    caxis(dye_inf{1,2});
+else
+    set(get(hcb,'label'),'string','Water depth (m)','FontSize',fs);
+end
