@@ -17,14 +17,14 @@ xy = double(xy);
 
 % make trianglua mesh
 tr = triangulation(nv,xy);
-boundaryedges = freeBoundary(tr)';
+% boundaryedges = freeBoundary(tr)'; % Bug because islands
 
 % plot
 figure;
 clf;
 triplot(tr);
 hold on 
-plot(xy(boundaryedges,1),xy(boundaryedges,2),'-r','LineWidth',2)
+% plot(xy(boundaryedges,1),xy(boundaryedges,2),'-r','LineWidth',2) % Bug because islands
 hold off
 axis equal;
 xlim([min(x)-(max(x)-min(x))*0.2 max(x)+(max(x)-min(x))*0.2]);
