@@ -80,6 +80,7 @@ if plotFig == 1
     hold on
     
     plot(x(Nlist), y(Nlist), 'ro')
+    axis('equal', 'tight')
     title('river nodes')
 end
 
