@@ -15,6 +15,8 @@ xy = [x, y];
 nv = double(nv);
 xy = double(xy);
 
+% simpplot(xy,nv);
+
 % make trianglua mesh
 tr = triangulation(nv,xy);
 % boundaryedges = freeBoundary(tr)'; % Bug because of islands
