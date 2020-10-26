@@ -66,6 +66,7 @@ for i =1:length(fileprefix)
 
     % For code requiring serial dates (datenum) instead of datetime, uncomment
     % the following line(s) below to return the imported dates as datenum(s).
+    % for example 01/01/2014 00:00 > 735600
 
     data.Time=datenum(data.Time);
 
@@ -80,6 +81,7 @@ if time
     Mobj.river.time = array(:,1);
     Mobj.river.Time = datestr(Mobj.river.time,31);
     Mobj.river.timeMJD = array(:,1) - 678942;
+    fprintf('\nWARNING: River time begin from %s\n', Mobj.river.Time(1,1:end));
 end
 
 %% Clear temporary variables
