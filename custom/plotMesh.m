@@ -23,6 +23,8 @@ as = 10;
 
 obc = false;
 riv = false;
+showtime = false;
+dye_hcb = false;
 for i=1:2:length(varargin)-1
 	keyword  = lower(varargin{i});	
 	switch(keyword(1:3))
@@ -42,8 +44,8 @@ for i=1:2:length(varargin)-1
         case 'dye'
             dye_inf = varargin{i+1};
             dye_hcb = true;
-        otherwise
-            error(['Can''t understand property:' char(varargin{i+1})]);
+%         otherwise
+%             error(['Can''t understand property:' char(varargin{i+1})]);
     end
 end
 
@@ -56,8 +58,9 @@ ax = axes('Parent',figure1);
 hold(ax,'on');
 
 % Create patch
-patch('Parent',ax,'Vertices',Nod,'Faces',Tri,...
+p = patch('Parent',ax,'Vertices',Nod,'Faces',Tri,...
     'FaceColor','interp',...
+    'EdgeColor','none',...
     'CData',Dep);
 
 if obc
@@ -73,20 +76,34 @@ end
 % Create label
 ylabel('Latitude (degree)','FontSize',fs);
 xlabel('Longtitude (degree)','FontSize',fs);
-title('Mesh and water depth (m)','FontSize',fs);
+% title('Water age (day)','FontSize',fs);
 
 x = Nod(:,1);
 y = Nod(:,2);
 
-% Uncomment the following line to preserve the X-limits of the axes
-xlim(ax,[min(x)-(max(x)-min(x))*0.2 max(x)+(max(x)-min(x))*0.2]);
-% Uncomment the following line to preserve the Y-limits of the axes
-ylim(ax,[min(y)-(max(y)-min(y))*0.1 max(y)+(max(y)-min(y))*0.1]);
+xlim1=139.71;
+xlim2=140.11;
+ylim1=35.45;
+ylim2=35.78;
+
+% xlim1=139.75;
+% xlim2=139.85;
+% ylim1=35.48;
+% ylim2=35.58;
+
+% % Uncomment the following line to preserve the X-limits of the axes
+% xlim(ax,[min(x)-(max(x)-min(x))*0.2 max(x)+(max(x)-min(x))*0.2]);
+% % Uncomment the following line to preserve the Y-limits of the axes
+% ylim(ax,[min(y)-(max(y)-min(y))*0.1 max(y)+(max(y)-min(y))*0.1]);
+xlim(ax,[xlim1 xlim2]);
+ylim(ax,[ylim1 ylim2]);
 box(ax,'on');
 
 if showtime
     % Create time str
-    text(min(x)-(max(x)-min(x))*0.10,min(y)-(max(y)-min(y))*0.05,time_str,'FontSize',fs);
+%     text(min(x)-(max(x)-min(x))*0.10,min(y)-(max(y)-min(y))*0.05,time_str,'FontSize',fs);
+     text(xlim1+(xlim2-xlim1)*0.60,ylim1+(ylim2-ylim1)*0.85,time_str,'FontSize',fs);
+%     text(xlim1+(xlim2-xlim1)*0.60,ylim1+(ylim2-ylim1)*0.85,time_str,'FontSize',fs);
 end
 
 % Set the remaining axes properties
@@ -102,3 +119,4 @@ if dye_hcb
 else
     set(get(hcb,'label'),'string','Water depth (m)','FontSize',fs);
 end
+
