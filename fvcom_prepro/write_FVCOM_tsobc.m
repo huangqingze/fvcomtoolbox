@@ -77,9 +77,9 @@ end
 
 [~, subname] = fileparts(mfilename('fullpath'));
 global ftbverbose
-% if ftbverbose
+if ftbverbose
   fprintf('\nbegin : %s\n', subname)
-% end
+end
 
 % Default to string times as FVCOM looks for these first.
 strtime = false;
@@ -275,6 +275,6 @@ netcdf.putVar(nc,obc_salinity_varid,salt);
 % close file
 netcdf.close(nc);
 
-% if ftbverbose
+if ftbverbose
     fprintf('end   : %s\n', subname)
-% end
+end
