@@ -101,8 +101,8 @@ end
 % for each node/element.
 
 obc_coarse_idx = [];
-if isfield(Mobj, 'read_obc_elems')
-    oElems = [Mobj.read_obc_elems{:}];
+if isfield(Mobj, 'read_obc_elements')
+    oElems = [Mobj.read_obc_elements{:}];
 else
     oElems = [];
 end
@@ -543,7 +543,11 @@ for s = 1:length(fvfields)
 end
 
 if isfield(coarse, 'time')
-    Mobj.ts_times = coarse.time;
+    if any(strcmpi(fields{v}, {'u', 'v'}))
+        Mobj.mf_times = coarse.time;
+    else
+        Mobj.ts_times = coarse.time;
+    end
 end
 
 if ftbverbose
