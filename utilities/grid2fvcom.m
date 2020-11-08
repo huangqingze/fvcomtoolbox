@@ -121,25 +121,25 @@ end
 
 % Run jobs on multiple workers if we have that functionality. Not sure if
 % it's necessary, but check we have the Parallel Toolbox first.
-if license('test', 'Distrib_Computing_Toolbox')
-   % We have the Parallel Computing Toolbox, so launch a bunch of workers.
-   if isempty(gcp('nocreate'))
-       % Force pool to be local in case we have remote pools available.
-       parpool('local');
-   end
-end
+% if license('test', 'Distrib_Computing_Toolbox')
+%    % We have the Parallel Computing Toolbox, so launch a bunch of workers.
+%    if isempty(gcp('nocreate'))
+%        % Force pool to be local in case we have remote pools available.
+%        parpool('local');
+%    end
+% end
 
 %--------------------------------------------------------------------------
 % Get the relevant bits from the FVCOM mesh object
 %--------------------------------------------------------------------------
 
-if strcmpi(Mobj.nativeCoords, 'spherical')
+% if strcmpi(Mobj.nativeCoords, 'spherical')
     x = Mobj.lon;
     y = Mobj.lat;
-else
-    x = Mobj.x;
-    y = Mobj.y;
-end
+% else
+%     x = Mobj.x;
+%     y = Mobj.y;
+% end
 nVerts = Mobj.nVerts;
 nElems = Mobj.nElems;
 % if ftbverbose
@@ -190,15 +190,15 @@ for vv = 1:length(vars)
                 tmp_data_data = data.(vars{vv}); % input to the interpolation
                 fprintf('success!\n')
             end
-            if strcmpi(Mobj.nativeCoords, 'spherical')
+%             if strcmpi(Mobj.nativeCoords, 'spherical')
                 xx = data.lon(:);
                 yy = data.lat(:);
                 [fvx, fvy] = size(data.lon);
-            else
-                xx = data.x(:);
-                yy = data.y(:);
-                [fvx, fvy] = size(data.x);
-            end
+%             else
+%                 xx = data.x(:);
+%                 yy = data.y(:);
+%                 [fvx, fvy] = size(data.x);
+%             end
             % Check the shapes of the input data match those of the
             % position arrays.
             [ncx, ncy, ~] = size(tmp_data_data);
