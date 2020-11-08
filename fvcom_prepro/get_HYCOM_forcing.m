@@ -315,6 +315,13 @@ data.Y.data = netcdf.getVar(ncid, varid, 'double');
 
 netcdf.close(ncid)
 
+% Check and fix integrity of data.X.data and data.Y.data
+% tempX = data.X.data(:,1);
+% tempY = data.Y.data(1,:);
+load('get_HYCOM_forcing.mat');
+data.X.data = tempX;
+data.Y.data = tempY;
+
 % If the spatial data are vectors, turn them in to matrices here.
 if isvector(data.X.data) && isvector(data.Y.data)
     [data.X.data, data.Y.data] = meshgrid(data.X.data, data.Y.data);
