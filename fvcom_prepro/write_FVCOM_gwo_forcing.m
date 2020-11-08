@@ -1,4 +1,4 @@
-function write_FVCOM_gwo_forcing(Mobj, fileprefix, infos, fver, varargin)
+function write_FVCOM_gwo_forcing(Mobj, data, fileprefix, infos, fver, varargin)
 % Write data out to FVCOM netCDF forcing file.
 %
 % write_FVCOM_forcing(Mobj, fvcom_forcing_file, data, infos, fver)
@@ -169,7 +169,7 @@ for vv = 1:2:length(varargin)
 end
 
 
-data = Mobj.gwo;
+% data = Mobj.gwo;
 tri = Mobj.tri;
 nNodes = Mobj.nVerts;
 nElems = Mobj.nElems;
@@ -373,8 +373,8 @@ for i=1:length(suffixes)
                 % just pass silently.
                 true;
 
-            case {'slp', 'pres', 'pressfc'}
-                if strcmpi(suffixes{i}, '_air_press') || ~multi_out
+            case {'slp', 'pres', 'pressfc','prs'}
+                if strcmpi(suffixes{i}, '_wnd') || ~multi_out
                     % Sea level pressure
                     slp_varid=netcdf.defVar(nc,'air_pressure','NC_FLOAT',[node_dimid, time_dimid]);
                     netcdf.putAtt(nc,slp_varid,'long_name','Surface air pressure');
@@ -387,51 +387,22 @@ for i=1:length(suffixes)
                     used_dims = [used_dims, 'nNodes'];
                 end
 
-            % case 'lcc'
-            %     if strcmpi(suffixes{i}, '_low_cloud_cover') || ~multi_out
-            %         % Low cloud cover
-            %         slp_varid=netcdf.defVar(nc,'low_cloud_cover','NC_FLOAT',[node_dimid, time_dimid]);
-            %         netcdf.putAtt(nc,slp_varid,'long_name','Low cloud cover');
-            %         netcdf.putAtt(nc,slp_varid,'units','Fraction');
-            %         netcdf.putAtt(nc,slp_varid,'grid','fvcom_grid');
-            %         netcdf.putAtt(nc,slp_varid,'coordinates',coordString);
-            %         netcdf.putAtt(nc,slp_varid,'type','data');
-            %         used_varids = [used_varids, 'lcc_varid'];
-            %         used_fnames = [used_fnames, fnames{vv}];
-            %         used_dims = [used_dims, 'nNodes'];
-            %     end
-
-            % case {'shum'}
-            %     if strcmpi(suffixes{i}, '_specific_humidity') || ~multi_out
-            %         % Specific humidity
-            %         slp_varid=netcdf.defVar(nc,'specific_humidity','NC_FLOAT',[node_dimid, time_dimid]);
-            %         netcdf.putAtt(nc,slp_varid,'long_name','Specific humidity');
-            %         netcdf.putAtt(nc,slp_varid,'units','Kg kg^-1');
-            %         netcdf.putAtt(nc,slp_varid,'grid','fvcom_grid');
-            %         netcdf.putAtt(nc,slp_varid,'coordinates',coordString);
-            %         netcdf.putAtt(nc,slp_varid,'type','data');
-            %         used_varids = [used_varids, 'q2m_varid'];
-            %         used_fnames = [used_fnames, fnames{vv}];
-            %         used_dims = [used_dims, 'nNodes'];
-            %     end
-
-            case {'Et', 'evap'}
-                if strcmpi(suffixes{i}, '_evap') || ~multi_out
-                    % Evaporation
-                    pevpr_varid=netcdf.defVar(nc,'evap','NC_FLOAT',[node_dimid, time_dimid]);
-                    netcdf.putAtt(nc,pevpr_varid,'long_name','Evaporation');
-                    netcdf.putAtt(nc,pevpr_varid,'description','Evaporation, ocean lose water is negative');
-                    netcdf.putAtt(nc,pevpr_varid,'units','m s-1');
-                    netcdf.putAtt(nc,pevpr_varid,'grid','fvcom_grid');
-                    netcdf.putAtt(nc,pevpr_varid,'coordinates',coordString);
-                    netcdf.putAtt(nc,pevpr_varid,'type','data');
-                    used_varids = [used_varids, 'pevpr_varid'];
+            case {'lcc','cld'}'
+                if strcmpi(suffixes{i}, '_wnd') || ~multi_out
+                    % Cloud cover
+                    cld_varid=netcdf.defVar(nc,'cloud_cover','NC_FLOAT',[node_dimid, time_dimid]);
+                    netcdf.putAtt(nc,cld_varid,'long_name','Cloud cover');
+                    netcdf.putAtt(nc,cld_varid,'units','-');
+                    netcdf.putAtt(nc,cld_varid,'grid','fvcom_grid');
+                    netcdf.putAtt(nc,cld_varid,'coordinates',coordString);
+                    netcdf.putAtt(nc,cld_varid,'type','data');
+                    used_varids = [used_varids, 'cld_varid'];
                     used_fnames = [used_fnames, fnames{vv}];
                     used_dims = [used_dims, 'nNodes'];
                 end
 
-            case {'prate'}%'prate'
-                if strcmpi(suffixes{i}, '_precip') || ~multi_out
+            case {'prate','rin'}%'prate'
+                if strcmpi(suffixes{i}, '_wnd') || ~multi_out
                     % Precipitation (or precipitation - evaporation)
                     prate_varid=netcdf.defVar(nc,'precip','NC_FLOAT',[node_dimid, time_dimid]);
                     netcdf.putAtt(nc,prate_varid,'long_name','Precipitation');
@@ -445,36 +416,8 @@ for i=1:length(suffixes)
                     used_dims = [used_dims, 'nNodes'];
                 end
 
-            case 'nswrs'
-                if strcmpi(suffixes{i}, '_hfx') || ~multi_out
-                    % Net shortwave radiation
-                    nswrs_varid=netcdf.defVar(nc,'short_wave','NC_FLOAT',[node_dimid, time_dimid]);
-                    netcdf.putAtt(nc,nswrs_varid,'long_name','Short Wave Radiation');
-                    netcdf.putAtt(nc,nswrs_varid,'units','W m-2');
-                    netcdf.putAtt(nc,nswrs_varid,'grid','fvcom_grid');
-                    netcdf.putAtt(nc,nswrs_varid,'coordinates',coordString);
-                    netcdf.putAtt(nc,nswrs_varid,'type','data');
-                    used_varids = [used_varids, 'nswrs_varid'];
-                    used_fnames = [used_fnames, fnames{vv}];
-                    used_dims = [used_dims, 'nNodes'];
-                end
-            
-            case 'nlwrs'
-                if strcmpi(suffixes{i}, '_hfx') || ~multi_out
-                    % Net longwave radiation
-                    nlwrs_varid=netcdf.defVar(nc,'long_wave','NC_FLOAT',[node_dimid, time_dimid]);
-                    netcdf.putAtt(nc,nlwrs_varid,'long_name','Long Wave Radiation');
-                    netcdf.putAtt(nc,nlwrs_varid,'units','W m-2');
-                    netcdf.putAtt(nc,nlwrs_varid,'grid','fvcom_grid');
-                    netcdf.putAtt(nc,nlwrs_varid,'coordinates',coordString);
-                    netcdf.putAtt(nc,nlwrs_varid,'type','data');
-                    used_varids = [used_varids, 'nlwrs_varid'];
-                    used_fnames = [used_fnames, fnames{vv}];
-                    used_dims = [used_dims, 'nNodes'];
-                end
-
             case {'air', 'tmp2m'}
-                if strcmpi(suffixes{i}, '_hfx') || ~multi_out
+                if strcmpi(suffixes{i}, '_wnd') || ~multi_out
                     % Air temperature.
                     airt_varid = netcdf.defVar(nc, 'air_temperature', 'NC_FLOAT', [node_dimid, time_dimid]);
                     netcdf.putAtt(nc, airt_varid, 'long_name', 'Surface air temperature');
@@ -487,8 +430,8 @@ for i=1:length(suffixes)
                     used_dims = [used_dims, 'nNodes'];
                 end
 
-            case {'rhum'}
-                if strcmpi(suffixes{i}, '_hfx') || ~multi_out
+            case {'rhum','hum'}
+                if strcmpi(suffixes{i}, '_wnd') || ~multi_out
                     % Relative humidity
                     rhum_varid = netcdf.defVar(nc, 'relative_humidity', 'NC_FLOAT', [node_dimid, time_dimid]);
                     netcdf.putAtt(nc, rhum_varid, 'long_name', 'surface air relative humidity');
@@ -501,102 +444,21 @@ for i=1:length(suffixes)
                     used_dims = [used_dims, 'nNodes'];
                 end
 
-% %             case {'dswrf', 'dswsfc'}
-% %                 if strcmpi(suffixes{i}, '_hfx') || ~multi_out
-% %                     % Downward shortwave radiation
-% %                     dswrf_varid = netcdf.defVar(nc, 'short_wave', 'NC_FLOAT', [node_dimid, time_dimid]);
-% %                     netcdf.putAtt(nc, dswrf_varid, 'long_name', 'Downward solar shortwave radiation flux');
-% %                     netcdf.putAtt(nc, dswrf_varid, 'units', 'Watts meter-2');
-% %                     netcdf.putAtt(nc, dswrf_varid, 'grid', 'fvcom_grid');
-% %                     netcdf.putAtt(nc, dswrf_varid, 'coordinates', coordString);
-% %                     netcdf.putAtt(nc, dswrf_varid, 'type', 'data');
-% %                     used_varids = [used_varids, 'dswrf_varid'];
-% %                     used_fnames = [used_fnames, fnames{vv}];
-% %                     used_dims = [used_dims, 'nNodes'];
-% %                 end
-% 
-% %             case {'dlwrf', 'dlwsfc'}
-% %                 if strcmpi(suffixes{i}, '_hfx') || ~multi_out
-% %                     % Downward longwave radiation
-% %                     dlwrf_varid = netcdf.defVar(nc, 'long_wave', 'NC_FLOAT', [node_dimid, time_dimid]);
-% %                     netcdf.putAtt(nc, dlwrf_varid, 'long_name', 'Downward solar longwave radiation flux');
-% %                     netcdf.putAtt(nc, dlwrf_varid, 'units', 'Watts meter-2');
-% %                     netcdf.putAtt(nc, dlwrf_varid, 'grid', 'fvcom_grid');
-% %                     netcdf.putAtt(nc, dlwrf_varid, 'coordinates', coordString);
-% %                     netcdf.putAtt(nc, dlwrf_varid, 'type', 'data');
-% %                     used_varids = [used_varids, 'dlwrf_varid'];
-% %                     used_fnames = [used_fnames, fnames{vv}];
-% %                     used_dims = [used_dims, 'nNodes'];
-% %                 end
-% 
 %             % Downward solar wave radation
-% %             case {'dswrf', 'dswsfc'}
-% %                 if strcmpi(suffixes{i}, '_hfx') || ~multi_out
-% %                     % Downward shortwave radiation
-% %                     dswrf_varid = netcdf.defVar(nc, 'short_wave', 'NC_FLOAT', [node_dimid, time_dimid]);
-% %                     netcdf.putAtt(nc, dswrf_varid, 'long_name', 'Downward solar shortwave radiation flux');
-% %                     netcdf.putAtt(nc, dswrf_varid, 'units', 'Watts meter-2');
-% %                     netcdf.putAtt(nc, dswrf_varid, 'grid', 'fvcom_grid');
-% %                     netcdf.putAtt(nc, dswrf_varid, 'coordinates', coordString);
-% %                     netcdf.putAtt(nc, dswrf_varid, 'type', 'data');
-% %                     used_varids = [used_varids, 'dswrf_varid'];
-% %                     used_fnames = [used_fnames, fnames{vv}];
-% %                     used_dims = [used_dims, 'nNodes'];
-% %                 end
-% 
-%             % Downward long wave radation
-% %             case {'dlwrf', 'dlwsfc'}
-% %                 if strcmpi(suffixes{i}, '_hfx') || ~multi_out
-% %                     % Downward longwave radiation
-% %                     dlwrf_varid = netcdf.defVar(nc, 'long_wave', 'NC_FLOAT', [node_dimid, time_dimid]);
-% %                     netcdf.putAtt(nc, dlwrf_varid, 'long_name', 'Downward solar longwave radiation flux');
-% %                     netcdf.putAtt(nc, dlwrf_varid, 'units', 'Watts meter-2');
-% %                     netcdf.putAtt(nc, dlwrf_varid, 'grid', 'fvcom_grid');
-% %                     netcdf.putAtt(nc, dlwrf_varid, 'coordinates', coordString);
-% %                     netcdf.putAtt(nc, dlwrf_varid, 'type', 'data');
-% %                     used_varids = [used_varids, 'dlwrf_varid'];
-% %                     used_fnames = [used_fnames, fnames{vv}];
-% %                     used_dims = [used_dims, 'nNodes'];
-% %                 end
-
-            case {'shtfl', 'lhtfl', 'nshf', 'nlwrs'}%, 'nswrs', 'nswsfc'}
-                % We can't trigger on nlwrs and nswrs here because they're
-                % the triggers for the net longwave and shortwave variables
-                % above. Instead, we need to use the latent heat flux
-                % variables as the triggers for the net heat flux.
-                % We also need to check for the existence of the "net
-                % surface heat flux ('nshf')" field which can be created
-                % before calling grid2fvcom. This approach means there's
-                % fewer calls to the (expensive) interpolation as the net
-                % surface heat flux is calculated before being interpolated
-                % onto the FVCOM grid. Set the nshf variable accordingly.
-                if strcmpi(fnames{vv}, 'nshf')
-                    nshf = 1;
-                end
-                try
-                    % We might have already made this attribute, so fail
-                    % elegantly if we do. This is because we need to put
-                    % all four of shtfl, lhtfl, nlwrs and nswrs to make
-                    % Surface Net Heat Flux.
-                    if strcmpi(suffixes{i}, '_hfx') || ~multi_out
-                        % Surface net heat flux
-                        nhf_varid=netcdf.defVar(nc,'net_heat_flux','NC_FLOAT',[node_dimid, time_dimid]);
-                        netcdf.putAtt(nc,nhf_varid,'long_name','Surface Net Heat Flux');
-                        netcdf.putAtt(nc,nhf_varid,'units','W m-2');
-                        netcdf.putAtt(nc,nhf_varid,'grid','fvcom_grid');
-                        netcdf.putAtt(nc,nhf_varid,'coordinates',coordString);
-                        netcdf.putAtt(nc,nhf_varid,'type','data');
-                    end
-                end
-                %if strcmpi(suffixes{i}, '_hfx') || ~multi_out
-                if ~multi_out % write out only if we're doing a single file
-                    % We need to save the current variable name even if
-                    % we've already made its attribute.
-                    used_varids = [used_varids, 'nhf_varid'];
+            case {'dswrf', 'dswsfc','dsw'}
+                if strcmpi(suffixes{i}, '_wnd') || ~multi_out
+                    % Downward shortwave radiation
+                    dswrf_varid = netcdf.defVar(nc, 'short_wave', 'NC_FLOAT', [node_dimid, time_dimid]);
+                    netcdf.putAtt(nc, dswrf_varid, 'long_name', 'Downward solar shortwave radiation flux');
+                    netcdf.putAtt(nc, dswrf_varid, 'units', 'Watts meter-2');
+                    netcdf.putAtt(nc, dswrf_varid, 'grid', 'fvcom_grid');
+                    netcdf.putAtt(nc, dswrf_varid, 'coordinates', coordString);
+                    netcdf.putAtt(nc, dswrf_varid, 'type', 'data');
+                    used_varids = [used_varids, 'dswrf_varid'];
                     used_fnames = [used_fnames, fnames{vv}];
                     used_dims = [used_dims, 'nNodes'];
                 end
-
+% 
             % case {'time', 'lon', 'lat', 'x', 'y'}
             case {'time'}
                 continue
@@ -661,81 +523,81 @@ for i=1:length(suffixes)
         % if ftbverbose
             fprintf('write : %s... \n', used_fnames{ff})
         % end
-        if strcmpi(used_fnames{ff}, 'shtfl') || strcmpi(used_fnames{ff}, 'lhtfl') || strcmpi(used_fnames{ff}, 'nlwrs') || strcmpi(used_fnames{ff}, 'nswrs')
-
-            hf_done = hf_done + 1;
-
-            if hf_done == 4 && nshf == 0
-                % if ftbverbose
-                    fprintf('combining heat flux ... \n')
-                % end
-                % We've got all four heat parameters, so dump them into the
-                % file.
-                %hf = -(data.shtfl.node + data.lhtfl.node + ...
-                %    data.nlwrs.node + data.nswrs.node);
-                hf = data.nlwrs.node + data.nswrs.node - ...
-                    data.shtfl.node - data.lhtfl.node;
-                %%% netcdf.putVar(ncid,varid,start,count,data)
-                %%% https://jp.mathworks.com/help/matlab/ref/netcdf.putvar.html?lang=zh
-                if time_dependent
-                    start_row = 1:nNodes;
-                    for ii = 1:length(start_row)
-                        netcdf.putVar(nc,nhf_varid,[start_row(ii)-1,0],[1,ntimes],full(hf));
-                    end
-                else
-                    netcdf.putVar(nc,nhf_varid,[0,0],[nNodes,ntimes],full(hf));
-                end
-                clear hf;
-            elseif strcmpi(used_fnames{ff}, 'nswrs') || strcmpi(used_fnames{ff}, 'nlwrs')
-                % We've already done the net surface heat flux but we're on
-                % either of the other fluxes (short/long wave) which we
-                % need to dump. Do that here.
-                if strcmpi(used_dims{ff}, 'nNodes')
-                    if time_dependent
-                        % eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[1,ntimes],full(data.',used_fnames{ff},'.node));'])
-                        start_row = 1:nNodes;
-                        for ii = 1:length(start_row)
-                            eval(['netcdf.putVar(nc,',used_varids{ff},',[',num2str(start_row(ii)-1),',0],[1,ntimes],full(data.',used_fnames{ff},'.node));'])
-                        end
-                    else
-                        eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],full(data.',used_fnames{ff},'.node));'])
-                    end
-                else
-                    if time_dependent
-                        % eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[1,ntimes],full(data.',used_fnames{ff},'.data));'])
-                        start_row = 1:nElems;
-                        for ii = 1:length(start_row)
-                            eval(['netcdf.putVar(nc,',used_varids{ff},',[',num2str(start_row(ii)-1),',0],[1,ntimes],full(data.',used_fnames{ff},'.data));'])
-                        end
-                    else
-                        eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],full(data.',used_fnames{ff},'.data));'])
-                    end
-                end
-            else
-                % We haven't got the precomputed net surface heat flux but
-                % we haven't yet got enough of the parameters to export the
-                % heat flux from the short + long + latent + sensible.
-                % Essentially this loop just does hf_done = hf_done + 1.
-            end
-        elseif strcmpi(used_fnames{ff}, 'nswsfc') && nshf == 1
-            if ftbverbose
-                fprintf('existing combined heat flux ... ')
-            end
-            % We have pre-computed net surface heat flux, in which case set
-            % hf_done to 4 and put the data into the netCDF. Also set the
-            % nshf variable 1 to stop the net surface heat flux variable
-            % being overwritten above.
-            hf_done = 4;
-            if time_dependent
-                % netcdf.putVar(nc, nhf_varid, [0, 0], [1, ntimes],full(data.nshf.node))
-                start_row = 1:nNodes;
-                for ii = 1:length(start_row)
-                    netcdf.putVar(nc, nhf_varid, [start_row(ii)-1, 0], [1, ntimes], full(data.nshf.node))
-                end
-            else
-                netcdf.putVar(nc, nhf_varid, [0, 0], [nNodes, ntimes], full(data.nshf.node))
-            end
-        else
+%         if strcmpi(used_fnames{ff}, 'shtfl') || strcmpi(used_fnames{ff}, 'lhtfl') || strcmpi(used_fnames{ff}, 'nlwrs') || strcmpi(used_fnames{ff}, 'nswrs')
+% 
+%             hf_done = hf_done + 1;
+% 
+%             if hf_done == 4 && nshf == 0
+%                 % if ftbverbose
+%                     fprintf('combining heat flux ... \n')
+%                 % end
+%                 % We've got all four heat parameters, so dump them into the
+%                 % file.
+%                 %hf = -(data.shtfl.node + data.lhtfl.node + ...
+%                 %    data.nlwrs.node + data.nswrs.node);
+%                 hf = data.nlwrs.node + data.nswrs.node - ...
+%                     data.shtfl.node - data.lhtfl.node;
+%                 %%% netcdf.putVar(ncid,varid,start,count,data)
+%                 %%% https://jp.mathworks.com/help/matlab/ref/netcdf.putvar.html?lang=zh
+%                 if time_dependent
+%                     start_row = 1:nNodes;
+%                     for ii = 1:length(start_row)
+%                         netcdf.putVar(nc,nhf_varid,[start_row(ii)-1,0],[1,ntimes],full(hf));
+%                     end
+%                 else
+%                     netcdf.putVar(nc,nhf_varid,[0,0],[nNodes,ntimes],full(hf));
+%                 end
+%                 clear hf;
+%             elseif strcmpi(used_fnames{ff}, 'nswrs') || strcmpi(used_fnames{ff}, 'nlwrs')
+%                 % We've already done the net surface heat flux but we're on
+%                 % either of the other fluxes (short/long wave) which we
+%                 % need to dump. Do that here.
+%                 if strcmpi(used_dims{ff}, 'nNodes')
+%                     if time_dependent
+%                         % eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[1,ntimes],full(data.',used_fnames{ff},'.node));'])
+%                         start_row = 1:nNodes;
+%                         for ii = 1:length(start_row)
+%                             eval(['netcdf.putVar(nc,',used_varids{ff},',[',num2str(start_row(ii)-1),',0],[1,ntimes],full(data.',used_fnames{ff},'.node));'])
+%                         end
+%                     else
+%                         eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],full(data.',used_fnames{ff},'.node));'])
+%                     end
+%                 else
+%                     if time_dependent
+%                         % eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[1,ntimes],full(data.',used_fnames{ff},'.data));'])
+%                         start_row = 1:nElems;
+%                         for ii = 1:length(start_row)
+%                             eval(['netcdf.putVar(nc,',used_varids{ff},',[',num2str(start_row(ii)-1),',0],[1,ntimes],full(data.',used_fnames{ff},'.data));'])
+%                         end
+%                     else
+%                         eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],full(data.',used_fnames{ff},'.data));'])
+%                     end
+%                 end
+%             else
+%                 % We haven't got the precomputed net surface heat flux but
+%                 % we haven't yet got enough of the parameters to export the
+%                 % heat flux from the short + long + latent + sensible.
+%                 % Essentially this loop just does hf_done = hf_done + 1.
+%             end
+%         elseif strcmpi(used_fnames{ff}, 'nswsfc') && nshf == 1
+%             if ftbverbose
+%                 fprintf('existing combined heat flux ... ')
+%             end
+%             % We have pre-computed net surface heat flux, in which case set
+%             % hf_done to 4 and put the data into the netCDF. Also set the
+%             % nshf variable 1 to stop the net surface heat flux variable
+%             % being overwritten above.
+%             hf_done = 4;
+%             if time_dependent
+%                 % netcdf.putVar(nc, nhf_varid, [0, 0], [1, ntimes],full(data.nshf.node))
+%                 start_row = 1:nNodes;
+%                 for ii = 1:length(start_row)
+%                     netcdf.putVar(nc, nhf_varid, [start_row(ii)-1, 0], [1, ntimes], full(data.nshf.node))
+%                 end
+%             else
+%                 netcdf.putVar(nc, nhf_varid, [0, 0], [nNodes, ntimes], full(data.nshf.node))
+%             end
+%         else
             % One of the other data sets for which we can simply dump the
             % existing array without waiting for other data.
             if strcmpi(used_dims{ff}, 'nNodes')
@@ -759,26 +621,26 @@ for i=1:length(suffixes)
                     else
                         eval(['netcdf.putVar(nc,',used_varids{ff},',[0,0],[',used_dims{ff},',ntimes],full(data.',used_fnames{ff},'.data));'])
                     end
-                    wnd_done = wnd_done + 1;
+%                     wnd_done = wnd_done + 1;
                 catch err
                     fprintf('%s', err.message)
                 end
             end
-        end
+%         end
         if ftbverbose
             fprintf('done.\n')
         end
     end
-    if hf_done < 4 && nshf == 1
-        % hf_done might be higher than four, but unless it is at least
-        % four, we haven't got everything we need. Only trigger this
-        % warning if we've been given any of the net heat flux components.
-        warning('Did not have all the required heat flux parameters for HEATING_ON. Need ''shtfl'', ''lhtfl'', ''nlwrs'' and ''nwsrs''.')
-    end
+%     if hf_done < 4 && nshf == 1
+%         % hf_done might be higher than four, but unless it is at least
+%         % four, we haven't got everything we need. Only trigger this
+%         % warning if we've been given any of the net heat flux components.
+%         warning('Did not have all the required heat flux parameters for HEATING_ON. Need ''shtfl'', ''lhtfl'', ''nlwrs'' and ''nwsrs''.')
+%     end
 
-    if wnd_done < 2
-        warning('No wind data was provided (or one component was missing). Expected fields u10 and v10 or uwnd and vwnd.')
-    end
+%     if wnd_done < 2
+%         warning('No wind data was provided (or one component was missing). Expected fields u10 and v10 or uwnd and vwnd.')
+%     end
 
     % Close the netCDF file(s)
     netcdf.close(nc);
