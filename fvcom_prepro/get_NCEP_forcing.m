@@ -337,24 +337,24 @@ for t = 1:nt
                 varid = netcdf.inqVarID(ncid, (fields{aa}));
             end
 
-            data_attributes.(fields{aa}).(fields{aa}).scale_factor = ...
-                netcdf.getAtt(ncid,varid,'scale_factor','double');
-            data_attributes.(fields{aa}).(fields{aa}).add_offset = ...
-                netcdf.getAtt(ncid,varid,'add_offset','double');
-            data_attributes.(fields{aa}).(fields{aa}).unpacked_valid_range = ...
-                netcdf.getAtt(ncid, varid, 'unpacked_valid_range');
-
-            data_attributes.(fields{aa}).(fields{aa}).actual_range = ...
-                netcdf.getAtt(ncid,varid,'actual_range','double');
-            data_attributes.(fields{aa}).(fields{aa}).precision = ...
-                netcdf.getAtt(ncid,varid,'precision','double');
-
-            % Change the precision of the attributes to avoid errors
-            precision = 10^data_attributes.(fields{aa}).(fields{aa}).precision;
-            data_attributes.(fields{aa}).(fields{aa}).scale_factor = ...
-                round(precision*data_attributes.(fields{aa}).(fields{aa}).scale_factor)./precision;
-            data_attributes.(fields{aa}).(fields{aa}).add_offset   = ...
-                round(precision*data_attributes.(fields{aa}).(fields{aa}).add_offset)./precision;
+%             data_attributes.(fields{aa}).(fields{aa}).scale_factor = ...
+%                 netcdf.getAtt(ncid,varid,'scale_factor','double');
+%             data_attributes.(fields{aa}).(fields{aa}).add_offset = ...
+%                 netcdf.getAtt(ncid,varid,'add_offset','double');
+%             data_attributes.(fields{aa}).(fields{aa}).unpacked_valid_range = ...
+%                 netcdf.getAtt(ncid, varid, 'unpacked_valid_range');
+% 
+%             data_attributes.(fields{aa}).(fields{aa}).actual_range = ...
+%                 netcdf.getAtt(ncid,varid,'actual_range','double');
+%             data_attributes.(fields{aa}).(fields{aa}).precision = ...
+%                 netcdf.getAtt(ncid,varid,'precision','double');
+% 
+%             % Change the precision of the attributes to avoid errors
+%             precision = 10^data_attributes.(fields{aa}).(fields{aa}).precision;
+%             data_attributes.(fields{aa}).(fields{aa}).scale_factor = ...
+%                 round(precision*data_attributes.(fields{aa}).(fields{aa}).scale_factor)./precision;
+%             data_attributes.(fields{aa}).(fields{aa}).add_offset   = ...
+%                 round(precision*data_attributes.(fields{aa}).(fields{aa}).add_offset)./precision;
 
             varid = netcdf.inqVarID(ncid,'lon');
             data_lon.lon = netcdf.getVar(ncid,varid,'double');
@@ -614,7 +614,7 @@ for t = 1:nt
         end
 
         datatmp = squeeze(data1.(fields{aa}).(fields{aa}).(fields{aa}));
-        datatmp = (datatmp * data_attributes.(fields{aa}).(fields{aa}).scale_factor) + data_attributes.(fields{aa}).(fields{aa}).add_offset;
+%         datatmp = (datatmp * data_attributes.(fields{aa}).(fields{aa}).scale_factor) + data_attributes.(fields{aa}).(fields{aa}).add_offset;
 
         % Fix the longitude ranges for all data.
         data.(fields{aa}).lon(data.(fields{aa}).lon > 180) = ...
@@ -627,8 +627,8 @@ for t = 1:nt
             data.(fields{aa}).data = cat(3, data.(fields{aa}).data, datatmp);
             data.(fields{aa}).time = cat(1, data.(fields{aa}).time, scratch.time);
         end
-         data.(fields{aa}).unpacked_valid_range = ...
-             data_attributes.(fields{aa}).(fields{aa}).unpacked_valid_range;
+%          data.(fields{aa}).unpacked_valid_range = ...
+%              data_attributes.(fields{aa}).(fields{aa}).unpacked_valid_range;
 %         data.(fields{aa}).time = cat(1, data.(fields{aa}).time, squeeze(data1.(fields{aa}).(fields{aa}).time));
 %         data.(fields{aa}).lat = squeeze(data1.(fields{aa}).(fields{aa}).lat);
 %         data.(fields{aa}).lon = squeeze(data1.(fields{aa}).(fields{aa}).lon);
@@ -640,12 +640,12 @@ for t = 1:nt
         % if something fails later on (e.g. the interpolation) because there's
         % NaNs, that should be a wakeup call to check what's going on with the
         % data.
-        if isfield(data_attributes.(fields{aa}).(fields{aa}), 'actual_range')
-            actual_min = data_attributes.(fields{aa}).(fields{aa}).actual_range(1);
-            actual_max = data_attributes.(fields{aa}).(fields{aa}).actual_range(2);
-            mask = data.(fields{aa}).data < actual_min | data.(fields{aa}).data > actual_max;
-            data.(fields{aa}).data(mask) = NaN;
-        end
+%         if isfield(data_attributes.(fields{aa}).(fields{aa}), 'actual_range')
+%             actual_min = data_attributes.(fields{aa}).(fields{aa}).actual_range(1);
+%             actual_max = data_attributes.(fields{aa}).(fields{aa}).actual_range(2);
+%             mask = data.(fields{aa}).data < actual_min | data.(fields{aa}).data > actual_max;
+%             data.(fields{aa}).data(mask) = NaN;
+%         end
 
         % if ftbverbose
             if isfield(data, fields{aa})
@@ -764,13 +764,13 @@ if isfield(data, 'prate') && isfield(data, 'lhtfl')
 end
 
 % Calculate the momentum flux
-if isfield(data, 'uwnd') && isfield(data, 'vwnd')
-    WW = data.uwnd.data + data.vwnd.data * 1i;
-    data.tau.data = stresslp(abs(WW),10);
+% if isfield(data, 'uwnd') && isfield(data, 'vwnd')
+%     WW = data.uwnd.data + data.vwnd.data * 1i;
+%     data.tau.data = stresslp(abs(WW),10);
 %     [data.tx.data,data.ty.data] = wstress(data.uwnd.data,data.vwnd.data,10);
 %     data.tx.data=reshape(data.tx.data*0.1, size(data.uwnd.data)); % dyn/cm^2 to N/m^2
 %     data.ty.data=reshape(data.ty.data*0.1, size(data.uwnd.data)); % dyn/cm^2 to N/m^2
-end
+% end
 
 % Get the fields we need for the subsequent interpolation Find the position
 % of a sensibly sized array (i.e. not 'topo', 'rhum' or 'pres').
@@ -802,11 +802,11 @@ data.lon(data.lon > 180) = data.lon(data.lon > 180) - 360;
 data.lat = data.(fields{ii}).lat;
 
 % Create a land mask from the pevpr data (if it's been extracted).
-if isfield(data, 'pevpr')
-    % Find any value less than or equal to the valid maximum across all
-    % time steps.
-    data.land_mask = max(data.pevpr.data <= data.pevpr.unpacked_valid_range(2), [], 3);
-end
+% if isfield(data, 'pevpr')
+%     % Find any value less than or equal to the valid maximum across all
+%     % time steps.
+%     data.land_mask = max(data.pevpr.data <= data.pevpr.unpacked_valid_range(2), [], 3);
+% end
 
 % Convert temperature to degrees Celsius (from Kelvin)
 if isfield(data, 'air')
