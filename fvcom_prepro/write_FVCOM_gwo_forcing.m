@@ -378,7 +378,7 @@ for i=1:length(suffixes)
                     % Sea level pressure
                     slp_varid=netcdf.defVar(nc,'air_pressure','NC_FLOAT',[node_dimid, time_dimid]);
                     netcdf.putAtt(nc,slp_varid,'long_name','Surface air pressure');
-                    netcdf.putAtt(nc,slp_varid,'units','Pa');
+                    netcdf.putAtt(nc,slp_varid,'units','hPa');
                     netcdf.putAtt(nc,slp_varid,'grid','fvcom_grid');
                     netcdf.putAtt(nc,slp_varid,'coordinates',coordString);
                     netcdf.putAtt(nc,slp_varid,'type','data');
@@ -403,8 +403,7 @@ for i=1:length(suffixes)
 
             case {'prate','rin'}%'prate'
                 if strcmpi(suffixes{i}, '_wnd') || ~multi_out
-                    % Precipitation (or precipitation - evaporation)
-                    prate_varid=netcdf.defVar(nc,'precip','NC_FLOAT',[node_dimid, time_dimid]);
+                    prate_varid=netcdf.defVar(nc,'Precipitation','NC_FLOAT',[node_dimid, time_dimid]);
                     netcdf.putAtt(nc,prate_varid,'long_name','Precipitation');
                     netcdf.putAtt(nc,prate_varid,'description','Precipitation, ocean lose water is negative');
                     netcdf.putAtt(nc,prate_varid,'units','m s-1');
