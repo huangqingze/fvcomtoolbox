@@ -41,7 +41,8 @@ for i =1:length(fileprefix)
     %	column8: double (%f)
     % For more information, see the TEXTSCAN documentation.
     % formatSpec = '%{MM/dd/yyyy HH:mm}D%f%f%f%f%f%f%f%[^\n\r]';
-    formatSpec = ['%{MM/dd/yyyy HH:mm}D',repmat('%f',1,riverNum),'%[^\n\r]'];
+    % formatSpec = ['%{MM/dd/yyyy HH:mm}D',repmat('%f',1,riverNum),'%[^\n\r]'];
+    formatSpec = ['%{yyyy/mm/dd HH:mm}D',repmat('%f',1,riverNum),'%[^\n\r]'];
 
     %% Open the text file.
     fileID = fopen(filename,'r');
