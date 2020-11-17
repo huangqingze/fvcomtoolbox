@@ -7,6 +7,11 @@ function plot_nc_layer_TS(Num, ncfile, timestep, layers, vartoplot)
 % vartoplot = {'temperature','salinity'};
 % Num = 24;
 
+% For example
+% vartoplot = {'temperature','salinity'};
+% Num = 10;
+% plot_nc_layer_TS(Num, ncfile, 4, [1], vartoplot);
+
 % Plot the animation
 for k = 1:length(vartoplot)
     for i = 1:length(layers)
