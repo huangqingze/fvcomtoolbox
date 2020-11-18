@@ -18,7 +18,11 @@ axes1 = axes('Parent',figure1);
 hold(axes1,'on');
 
 % Create plot
-plot(time,value,'LineWidth',2);
+tidx = size(value,1);
+for i = 1:tidx
+    plot(time,value(i,:),'LineWidth',2);
+    hold on;
+end
 
 % Create title
 title(In_title,'Interpreter','latex');
