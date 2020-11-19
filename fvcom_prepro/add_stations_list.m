@@ -93,10 +93,10 @@ for s = 1:nPos
 
     if dist >= Dist
         % Skip out for this station
-        if ftbverbose
+%         if ftbverbose
             fprintf('Skipping station %s (%g, %g). Nodal distance from station position = %f\n', Names{s}, Positions(s, 1), Positions(s, 2), dist)
-        end
-        continue
+%         end
+%         continue
     end
     out{inc} = {inc, Positions(s, cols(1)), Positions(s, cols(2)), node, Mobj.h(node), Names{s}, elem};
     inc = inc + 1;
