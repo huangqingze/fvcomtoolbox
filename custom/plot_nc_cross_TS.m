@@ -26,16 +26,7 @@ for i =1:length(vartoplot)
     fig = figure(Num+i);
     %clf
     fprintf([vartoplot{i},': cross section profile.','\n']);
-<<<<<<< HEAD
-    minValue = min(min(min(ncfile.(vartoplot{i})(:,:,:))));
-    maxValue = max(max(max(ncfile.(vartoplot{i})(:,:,:))));
-    for tt =1:length(ncfile.Times)
-        sudata = reshape(ncfile.(vartoplot{i})(crs_node,:,tt),[size(crs_node,1)*fz,1]);
-        DateString = ncfile.Times(tt,:);
-        plot_cross(Num+i, depsig, lonsig, sudata, (vartoplot{i}),'cross section',...
-            minValue,...
-            maxValue,...
-=======
+
     minval = min(min(min(ncfile.(vartoplot{i})(crs_node,:,:))));
     maxval = max(max(max(ncfile.(vartoplot{i})(crs_node,:,:))));
     for tt =1:(timestep-1):length(ncfile.Times)
@@ -44,7 +35,6 @@ for i =1:length(vartoplot)
         plot_cross(Num+i, depsig, lonsig, sudata, (vartoplot{i}),'cross section',...
             minval,...
             maxval,...
->>>>>>> d483477ec86f70398243991b0c0ae0883697f9de
             DateString);
         drawnow
         frame = getframe(fig);
