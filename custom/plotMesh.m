@@ -81,10 +81,10 @@ xlabel('Longtitude (degree)','FontSize',fs);
 x = Nod(:,1);
 y = Nod(:,2);
 
-xlim1=139.71;
-xlim2=140.11;
-ylim1=35.45;
-ylim2=35.78;
+% xlim1=139.71;
+% xlim2=140.11;
+% ylim1=35.45;
+% ylim2=35.78;
 
 % xlim1=139.75;
 % xlim2=139.85;
@@ -92,17 +92,17 @@ ylim2=35.78;
 % ylim2=35.58;
 
 % % Uncomment the following line to preserve the X-limits of the axes
-% xlim(ax,[min(x)-(max(x)-min(x))*0.2 max(x)+(max(x)-min(x))*0.2]);
+xlim(ax,[min(x)-(max(x)-min(x))*0.2 max(x)+(max(x)-min(x))*0.2]);
 % % Uncomment the following line to preserve the Y-limits of the axes
-% ylim(ax,[min(y)-(max(y)-min(y))*0.1 max(y)+(max(y)-min(y))*0.1]);
-xlim(ax,[xlim1 xlim2]);
-ylim(ax,[ylim1 ylim2]);
+ylim(ax,[min(y)-(max(y)-min(y))*0.1 max(y)+(max(y)-min(y))*0.1]);
+% xlim(ax,[xlim1 xlim2]);
+% ylim(ax,[ylim1 ylim2]);
 box(ax,'on');
 
 if showtime
     % Create time str
-%     text(min(x)-(max(x)-min(x))*0.10,min(y)-(max(y)-min(y))*0.05,time_str,'FontSize',fs);
-     text(xlim1+(xlim2-xlim1)*0.60,ylim1+(ylim2-ylim1)*0.85,time_str,'FontSize',fs);
+    text(min(x)-(max(x)-min(x))*0.10,min(y)-(max(y)-min(y))*0.05,time_str,'FontSize',fs);
+%      text(xlim1+(xlim2-xlim1)*0.60,ylim1+(ylim2-ylim1)*0.85,time_str,'FontSize',fs);
 %     text(xlim1+(xlim2-xlim1)*0.60,ylim1+(ylim2-ylim1)*0.85,time_str,'FontSize',fs);
 end
 
