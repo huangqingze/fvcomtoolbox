@@ -22,7 +22,7 @@ patch('Parent',axes1,'Vertices',Vertices1,'Faces',Faces1,...
 shading flat
 
 % Create ylabel
-ylabel('Latitude (degtee)');
+ylabel('Latitude (degree)');
 
 % Create xlabel
 xlabel('Longtitude (degree)');
