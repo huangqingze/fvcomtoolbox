@@ -21,7 +21,7 @@ patch('Parent',axes1,'YData',YData1,'XData',XData1,'FaceColor','flat',...
     'CData',CData1);
 
 % Create ylabel
-ylabel('Water depth (m)');
+ylabel('Elevation (m)');
 
 % Create xlabel
 xlabel('Node');
