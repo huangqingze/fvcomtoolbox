@@ -300,9 +300,13 @@ for vv = 1:length(vars)
                 
             % Transfer the temporary arrays back to the relevant struct and
             % clear out the temporary arrays.
-            fvcom.(vars{vv}).node = tmp_fvcom_node;
+            if ~strcmpi(varname, 'uwnd') && ~strcmpi(varname, 'vwnd')
+                fvcom.(vars{vv}).node = tmp_fvcom_node;
+            end
             if do_elems
-                fvcom.(vars{vv}).data = tmp_fvcom_data;
+                if strcmpi(varname, 'uwnd') || strcmpi(varname, 'vwnd')
+                    fvcom.(vars{vv}).data = tmp_fvcom_data;
+                end
             end
             clear nnans* tmp_*
 
