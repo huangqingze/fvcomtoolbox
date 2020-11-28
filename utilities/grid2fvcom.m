@@ -143,7 +143,7 @@ end
 nVerts = Mobj.nVerts;
 nElems = Mobj.nElems;
 % if ftbverbose
-    fprintf('info for FVCOM domain\n');
+    % fprintf('info for FVCOM domain\n');
     fprintf('number of nodes: %d\n', nVerts);
     fprintf('number of elems: %d\n', nElems);
 % end
@@ -176,12 +176,15 @@ for vv = 1:length(vars)
         otherwise
             % Preallocate the output arrays. Also create temporary arrays
             % for the inner loop to be parallelisable (is that a word?):
-            tmp_fvcom_data = zeros(nElems, ntimes);
-            tmp_fvcom_node = zeros(nVerts, ntimes);
-            %tmp_fvcom_data = zeros(nElems, ntimes,'single');
-            %tmp_fvcom_node = zeros(nVerts, ntimes,'single');
-            tmp_fvcom_data = sparse(tmp_fvcom_data);
-            tmp_fvcom_node = sparse(tmp_fvcom_node);
+%                 if do_elems
+                    tmp_fvcom_data = zeros(nElems, ntimes);
+                    %tmp_fvcom_data = zeros(nElems, ntimes,'single');
+                    tmp_fvcom_data = sparse(tmp_fvcom_data);
+%                 else
+                    tmp_fvcom_node = zeros(nVerts, ntimes);
+                    %tmp_fvcom_node = zeros(nVerts, ntimes,'single');    
+                    tmp_fvcom_node = sparse(tmp_fvcom_node);
+%                 end
             try
                 tmp_data_data = data.(vars{vv}).data; % input to the interpolation
             catch msg
@@ -230,7 +233,7 @@ for vv = 1:length(vars)
             varname = vars{vv};            
             parfor i = 1:ntimes
                 % if ftbverbose
-                %     fprintf('interpolating %s, frame %d of %d\n', varname, i, ntimes);
+                %    fprintf('interpolating %s, frame %d of %d\n', varname, i, ntimes);
                 % end
                 currvar = tmp_data_data(:, :, i);
                 % Not sure yet, but only for fix the NaN in prate data.
@@ -284,29 +287,29 @@ for vv = 1:length(vars)
                     error('Can''t interpolate the data: non-matching coordinate array sizes.')
                 end
 
-                tmp_fvcom_node(:, i) = ftsin(x, y);
-                nnans1 = sum(isnan(tmp_fvcom_node(:, i)));
-                if  nnans1 > 0
-                    warning('%i NaNs in the interpolated node data. This won''t work with FVCOM.', nnans1)
-                end
-                if do_elems
+%                 if do_elems
                     tmp_fvcom_data(:, i) = ftsin(xc, yc);
                     nnans2 = sum(isnan(tmp_fvcom_data(:, i)));
                     if nnans2 > 0
                         warning('%i NaNs in the interpolated element data. This won''t work with FVCOM.', nnans2)
                     end
-                end
+%                 end
+
+%                 if ~do_elems
+                    tmp_fvcom_node(:, i) = ftsin(x, y);
+                    nnans1 = sum(isnan(tmp_fvcom_node(:, i)));
+                    if  nnans1 > 0
+                        warning('%i NaNs in the interpolated node data. This won''t work with FVCOM.', nnans1)
+                    end
+%                 end
             end
                 
             % Transfer the temporary arrays back to the relevant struct and
             % clear out the temporary arrays.
-            if ~strcmpi(varname, 'uwnd') && ~strcmpi(varname, 'vwnd')
-                fvcom.(vars{vv}).node = tmp_fvcom_node;
-            end
             if do_elems
-                if strcmpi(varname, 'uwnd') || strcmpi(varname, 'vwnd')
-                    fvcom.(vars{vv}).data = tmp_fvcom_data;
-                end
+                fvcom.(vars{vv}).data = tmp_fvcom_data;
+            else
+                fvcom.(vars{vv}).node = tmp_fvcom_node;
             end
             clear nnans* tmp_*
 
