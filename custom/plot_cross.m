@@ -28,8 +28,12 @@ xlabel('Node');
 
 if strcmpi(NAME_ITEM, 'temperature')
     item = '(^{\circ}C)';
-else
+elseif strcmpi(NAME_ITEM, 'salinity')
     item = '(PSU)';
+elseif strcmpi(NAME_ITEM, 'age')   
+    item = '(day)';
+elseif strcmpi(NAME_ITEM, 'DYE')
+    item = '(-)';
 end
 
 % Create title
@@ -41,7 +45,11 @@ xlim(axes1,[min(min(XData1)) max(max(XData1))]);
 % ylim(axes1,[-2752 0]);
 box(axes1,'on');
 % Set the remaining axes properties
-set(axes1,'XDir','normal','CLim',[Min Max]);
+if strcmpi(NAME_ITEM, 'age')
+    set(axes1,'XDir','normal','CLim',[0 180]);
+else
+    set(axes1,'XDir','normal','CLim',[Min Max]);
+end
 set(gcf,'position',[Num*10,Num*10,800,600])
 % Create colorbar
 colorbar('peer',axes1);
