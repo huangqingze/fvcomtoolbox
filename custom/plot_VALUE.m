@@ -31,6 +31,10 @@ if strcmpi(NAME_ITEM, 'temperature')
     item = '(^{\circ}C)';
 elseif strcmpi(NAME_ITEM, 'salinity')
     item = '(PSU)';
+elseif strcmpi(NAME_ITEM, 'DYE')
+    item = '(-)';
+elseif strcmpi(NAME_ITEM, 'age')   
+    item = '(day)';
 end
 
 % Create title
@@ -42,7 +46,11 @@ xlim(axes1,[139.1 140.4]);
 ylim(axes1,[34.65 35.75]);
 box(axes1,'on');
 % Set the remaining axes properties
-set(axes1,'XDir','normal','CLim',[Min Max]);
+if strcmpi(NAME_ITEM, 'age')  
+    set(axes1,'XDir','normal','CLim',[0 50]);
+else
+    set(axes1,'XDir','normal','CLim',[Min Max]);
+end
 set(axes1,'DataAspectRatio',[1.2 1 1],'PlotBoxAspectRatio',...
     [1 1 1]);
 set(gcf,'position',[Num*10,Num*10,800,600])
