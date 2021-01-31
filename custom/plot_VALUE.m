@@ -35,6 +35,10 @@ elseif strcmpi(NAME_ITEM, 'DYE')
     item = '(-)';
 elseif strcmpi(NAME_ITEM, 'age')   
     item = '(day)';
+elseif (NAME_ITEM(1:3) == 'age')
+    item = '(day)';
+elseif strcmpi(NAME_ITEM, 'zeta')   
+    item = '(meter)';
 end
 
 % Create title
@@ -48,6 +52,8 @@ box(axes1,'on');
 % Set the remaining axes properties
 if strcmpi(NAME_ITEM, 'age')  
     set(axes1,'XDir','normal','CLim',[0 50]);
+elseif (NAME_ITEM(1:3) == 'age')
+    set(axes1,'XDir','normal','CLim',[0 80]);
 else
     set(axes1,'XDir','normal','CLim',[Min Max]);
 end
@@ -56,4 +62,5 @@ set(axes1,'DataAspectRatio',[1.2 1 1],'PlotBoxAspectRatio',...
 set(gcf,'position',[Num*10,Num*10,800,600])
 % Create colorbar
 colorbar('peer',axes1);
+
 
