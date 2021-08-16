@@ -51,7 +51,7 @@ ylim(axes1,[34.65 35.75]);
 box(axes1,'on');
 % Set the remaining axes properties
 if strcmpi(NAME_ITEM, 'age')  
-    set(axes1,'XDir','normal','CLim',[0 50]);
+    set(axes1,'XDir','normal','CLim',[0 80]);
 elseif (NAME_ITEM(1:3) == 'age')
     set(axes1,'XDir','normal','CLim',[0 80]);
 else
