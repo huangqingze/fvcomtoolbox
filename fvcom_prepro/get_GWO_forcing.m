@@ -1,14 +1,14 @@
 function data = get_GWO_forcing(time_period)
 % Get the forcing data.
 
-gwo.uwnd   = "/Volumes/Yulong/data/environment/gwo/data/gwo/2014-2017_uwnd.nc";
-gwo.vwnd   = "/Volumes/Yulong/data/environment/gwo/data/gwo/2014-2017_vwnd.nc";
-gwo.air    = "/Volumes/Yulong/data/environment/gwo/data/gwo/2014-2017_air.nc";
-gwo.hum   = "/Volumes/Yulong/data/environment/gwo/data/gwo/2014-2017_hum.nc";
-gwo.rin  = "/Volumes/Yulong/data/environment/gwo/data/gwo/2014-2017_rin.nc";
-gwo.prs   = "/Volumes/Yulong/data/environment/gwo/data/gwo/2014-2017_prs.nc";
-gwo.cld  = "/Volumes/Yulong/data/environment/gwo/data/gwo/2014-2017_cld.nc";
-gwo.dsw  = "/Volumes/Yulong/data/environment/gwo/data/gwo/2014-2017_dsw.nc";
+gwo.uwnd   = "/Users/yulong/GitHub/pipeline/01_pre_pro/00_data/2014-2017_uwnd.nc";
+gwo.vwnd   = "/Users/yulong/GitHub/pipeline/01_pre_pro/00_data/2014-2017_vwnd.nc";
+gwo.air    = "/Users/yulong/GitHub/pipeline/01_pre_pro/00_data/2014-2017_air.nc";
+gwo.hum    = "/Users/yulong/GitHub/pipeline/01_pre_pro/00_data/2014-2017_hum.nc";
+gwo.rin    = "/Users/yulong/GitHub/pipeline/01_pre_pro/00_data/2014-2017_rin.nc";
+gwo.prs    = "/Users/yulong/GitHub/pipeline/01_pre_pro/00_data/2014-2017_prs.nc";
+gwo.cld    = "/Users/yulong/GitHub/pipeline/01_pre_pro/00_data/2014-2017_cld.nc";
+gwo.dsw    = "/Users/yulong/GitHub/pipeline/01_pre_pro/00_data/2014-2017_dsw.nc";
 
 fields = fieldnames(gwo);
 
